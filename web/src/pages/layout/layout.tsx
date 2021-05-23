@@ -49,17 +49,15 @@ class BasicLayout extends React.Component<any, any> {
 
     render = () => (
         <Layout style={{ minHeight: '100vh', maxHeight: '100vh' }}>
-            <NavMenu />
-            <Layout className="site-layout">
+            <Layout>
                 <NavHeader />
-                <Content className="site-layout-background"
-                    style={{
-                        margin: '16px',
-                        padding: 16,
-                        minHeight: 280,
-                        overflow: 'auto'
-                    }}>
-                    {this.props.children}
+                <Content className="layout-content">
+                    <div className="left-part">
+                        <NavMenu/>
+                    </div>
+                    <div className="right-part">
+                        {this.props.children}
+                    </div>
                 </Content>
             </Layout>
         </Layout>

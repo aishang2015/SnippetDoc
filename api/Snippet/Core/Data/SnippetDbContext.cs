@@ -8,6 +8,18 @@ namespace Snippet.Core.Data
     {
         public SnippetDbContext(DbContextOptions<SnippetDbContext> options) : base(options) { }
 
+        public DbSet<Space> Spaces { get; set; }
+
+        public DbSet<SpaceMember> SpaceMembers { get; set; }
+
+        public DbSet<DocInfo> DocInfos { get; set; }
+
+        public DbSet<DocHistory> DocHistories { get; set; }
+
+        public DbSet<DocFolder> DocFolders { get; set; }
+
+        public DbSet<DocFolderTree> DocFolderTrees { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);

@@ -1,10 +1,9 @@
-import { Badge, Button, Dropdown, List, Menu } from "antd";
+import { Badge, Button, Dropdown, List, Menu, Modal } from "antd";
 import { Header } from "antd/lib/layout/layout";
 import React from "react";
 import { connect } from "react-redux";
 import {
-    MenuUnfoldOutlined,
-    MenuFoldOutlined,
+    SettingOutlined,
     DownOutlined,
     NotificationOutlined
 } from '@ant-design/icons';
@@ -13,6 +12,7 @@ import { Dispatch } from "redux";
 import { onToggle } from "../../redux/navCollapsed/navCollapsedCreator";
 import { onClearMessage } from "../../redux/notification/notificationCreator";
 import { StorageService } from "../../common/storage";
+import { Setting } from "../setting/setting";
 
 type INavHeaderProps = {
     collapsed: boolean;
@@ -23,6 +23,7 @@ type INavHeaderProps = {
 
 type INavHeaderState = {
     visible: boolean;
+    isModalVisible: boolean;
 }
 
 
@@ -30,6 +31,7 @@ class NavHeader extends React.Component<INavHeaderProps, INavHeaderState>{
 
     state = {
         visible: false,
+        isModalVisible: false
     };
 
     render = () => {
@@ -63,11 +65,13 @@ class NavHeader extends React.Component<INavHeaderProps, INavHeaderState>{
         const userName = localStorage.getItem('user-name');
 
         return (
-            <Header className="site-layout-background" style={{ padding: 0 }}>
-                {React.createElement(this.props.collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-                    className: 'trigger',
-                    onClick: this.props.toggle,
-                })}
+            <Header style={{
+                padding: 0,
+                display: "flex",
+                justifyContent: "space-between",
+                backgroundColor: "white"
+            }}>
+                <div className="logo" >SnippetDoc</div>
                 <div>
                     <Badge count={this.props.notifications.length}>
                         <Dropdown overlay={message} placement="bottomRight" visible={this.state?.visible}
@@ -81,14 +85,29 @@ class NavHeader extends React.Component<INavHeaderProps, INavHeaderState>{
                             <Button shape="circle" icon={<NotificationOutlined />} />
                         </Dropdown>
                     </Badge>
+                    <Button style={{ marginLeft: "20px" }} shape="circle" icon={<SettingOutlined />}
+                        onClick={() => this.showSetting()} />
                     <Dropdown className="dropdown" overlay={menu}>
                         <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
                             {userName}<DownOutlined />
                         </a>
                     </Dropdown>
                 </div>
+
+                <Modal title="系统设定" visible={this.state.isModalVisible} width='1000px'
+                    footer={null} onCancel={() => this.hideSetting()}>
+                    <Setting></Setting>
+                </Modal>
             </Header>
         );
+    }
+
+    showSetting() {
+        this.setState({ isModalVisible: true });
+    }
+
+    hideSetting() {
+        this.setState({ isModalVisible: false });
     }
 
 

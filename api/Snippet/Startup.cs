@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Snippet.Business;
 using Snippet.Core;
@@ -11,6 +13,7 @@ using Snippet.Core.Data;
 using Snippet.Core.Middleware;
 using Snippet.Core.Oauth;
 using Snippet.Models;
+using System.IO;
 using System.Reflection;
 
 namespace Snippet
@@ -99,6 +102,13 @@ namespace Snippet
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            // 访问静态文件
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "FileStore")),
+                RequestPath = new PathString("/file")
+            });
 
             // 配置signalr路径
             app.UseEndpoints(endpoints =>

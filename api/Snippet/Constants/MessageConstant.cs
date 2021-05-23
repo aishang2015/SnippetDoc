@@ -19,5 +19,12 @@
         public static readonly (string, string) ACCOUNT_ERROR_0006 = ("ACCOUNT_ERROR_0006", "第三方信息缓存密钥不能是空！");
         public static readonly (string, string) ACCOUNT_ERROR_0007 = ("ACCOUNT_ERROR_0007", "第三方账号信息已过期，请返回登陆页面重试！");
         #endregion
+
+        #region FileController 
+
+        public static readonly (string, string) FILE_ERROR_0001 = ("FILE_ERROR_0001", "文件不能为空！");
+
+
+        #endregion
     }
 }

@@ -1,14 +1,14 @@
 .trigger {
-    font-size  : 18px;
+    font-size: 18px;
     line-height: 64px;
-    padding    : 0 24px;
-    cursor     : pointer;
-    transition : color 0.3s;
+    padding: 0 24px;
+    cursor: pointer;
+    transition: color 0.3s;
 }
 
 .dropdown {
     padding: 0 24px 0 12px;
-    margin : 0 24px 0 12px;
+    margin: 0 24px 0 12px;
 }
 
 .trigger:hover {
@@ -16,22 +16,33 @@
 }
 
 .logo {
-    height     : 32px;
-    margin     : 16px;
-    text-align : center;
+    height: 32px;
+    margin: 16px;
+    text-align: center;
     line-height: 32px;
-    color      : white;
+    font-weight: bold;
+    font-size: 1.3em;
 }
 
 .large-logo-font {
     font-size: 1.5rem;
 }
 
-.site-layout .site-layout-background {
-    background: #fff;
-}
+.layout-content {
+    display: flex;
+    min-height: 480px;
+    overflow: auto;
 
-.site-layout-background {
-    display        : flex;
-    justify-content: space-between;
+    .left-part{
+        flex: 0 0 270px;
+        background: #fff;
+        box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .right-part{
+        padding: 16px;
+        margin: 16px;
+        background: #fff;   
+        flex: 1;
+    }
 }
