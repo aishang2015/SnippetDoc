@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Snippet.Constants;
 using Snippet.Entity;
 
 namespace Snippet.Core.Data
@@ -24,12 +25,22 @@ namespace Snippet.Core.Data
                 {
                     logger.LogInformation("数据库初始化完毕，开始创建数据。");
                     var userManager = services.GetRequiredService<UserManager<SnippetUser>>();
-                    userManager.CreateAsync(new SnippetUser
+                    var user = new SnippetUser
                     {
                         UserName = "admin",
                         Email = "admin@tttttttttt.com.cn",
                         PhoneNumber = "16655558888",
-                    }, "admin").Wait();
+                    };
+                    userManager.CreateAsync(user, "admin").Wait();
+
+                    var roleManager = services.GetRequiredService<RoleManager<SnippetRole>>();
+                    roleManager.CreateAsync(new SnippetRole
+                    {
+                        Name = "系统管理员"
+                    }).Wait();
+
+                    userManager.AddToRoleAsync(user, CommonConstant.SystemManagerRole).Wait();
+
                     logger.LogInformation("数据创建完毕。");
                 }
                 logger.LogInformation("初始化数据操作执行完毕。");

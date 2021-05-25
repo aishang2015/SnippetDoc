@@ -26,5 +26,15 @@
 
 
         #endregion
+
+        #region SpaceController
+        public static readonly (string, string) SPACE_INFO_0001 = ("SPACE_INFO_0001", "空间创建成功！");
+        public static readonly (string, string) SPACE_INFO_0002 = ("SPACE_INFO_0002", "空间更新成功！");
+        public static readonly (string, string) SPACE_INFO_0003 = ("SPACE_INFO_0003", "空间删除成功！");
+
+
+        public static readonly (string, string) SPACE_ERROR_0001 = ("SPACE_ERROR_0001", "非系统管理员无法查看所有空间！");
+
+        #endregion
     }
 }

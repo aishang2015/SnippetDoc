@@ -72,6 +72,9 @@ namespace Snippet
                 // 历史会默认保存30分钟
                 options.RouteBasePath = "/profiler";
             }).AddEntityFramework();
+
+            // 添加服务
+            services.AddServices();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Snippet.Business.Hubs;
+using Snippet.Business.Services;
 using Snippet.Business.Workers;
 
 namespace Snippet.Business
@@ -18,6 +19,12 @@ namespace Snippet.Business
         {
             endpoints.MapHub<BroadcastHub>("/broadcast");
             return endpoints;
+        }
+
+        public static IServiceCollection AddServices(this IServiceCollection services)
+        {
+            services.AddScoped<IUserService, UserService>();
+            return services;
         }
     }
 }
