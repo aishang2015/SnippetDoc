@@ -20,12 +20,19 @@ namespace Snippet.Entity
         [Comment("内容")]
         public string Content { get; set; }
 
-        public int CreateBy { get; set; }
+        [Comment("逻辑删除标识")]
+        public bool IsDelete { get; set; }
 
+        [Comment("创建人")]
+        public string CreateBy { get; set; }
+
+        [Comment("创建时间")]
         public DateTime CreateAt { get; set; }
 
-        public int? UpdateBy { get; set; }
+        [Comment("更新人")]
+        public string UpdateBy { get; set; }
 
+        [Comment("更新时间")]
         public DateTime? UpdateAt { get; set; }
     }
 }

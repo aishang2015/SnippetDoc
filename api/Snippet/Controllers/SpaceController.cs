@@ -35,6 +35,9 @@ namespace Snippet.Controllers
             _userService = userService;
         }
 
+        /// <summary>
+        /// 创建空间
+        /// </summary>
         [HttpPost]
         public async Task<CommonResult> CreateSpace(CreateSpaceInputModel model)
         {
@@ -46,6 +49,9 @@ namespace Snippet.Controllers
             return this.SuccessCommonResult(MessageConstant.SPACE_INFO_0001);
         }
 
+        /// <summary>
+        /// 更新空间
+        /// </summary>
         [HttpPost]
         public async Task<CommonResult> UpdateSpace(UpdateSpaceInputModel model)
         {
@@ -55,6 +61,9 @@ namespace Snippet.Controllers
             return this.SuccessCommonResult(MessageConstant.SPACE_INFO_0002);
         }
 
+        /// <summary>
+        /// 删除空间
+        /// </summary>
         [HttpPost]
         public async Task<CommonResult> DeleteSpace(DeleteSpaceInputModel model)
         {
@@ -64,6 +73,9 @@ namespace Snippet.Controllers
             return this.SuccessCommonResult(MessageConstant.SPACE_INFO_0003);
         }
 
+        /// <summary>
+        /// 获取自己能看到的空间列表
+        /// </summary>
         [HttpPost]
         public CommonResult GetUserSpaceList()
         {
@@ -77,6 +89,9 @@ namespace Snippet.Controllers
             return this.SuccessCommonResult(result.OrderBy(d => d.role));
         }
 
+        /// <summary>
+        /// 取得管理空间列表
+        /// </summary>
         [HttpPost]
         public async Task<CommonResult> GetManageSpaceList()
         {
@@ -99,13 +114,23 @@ namespace Snippet.Controllers
             return this.SuccessCommonResult(result);
         }
 
+        /// <summary>
+        /// 获取空间成员
+        /// </summary>
         [HttpPost]
         public CommonResult GetSpaceMemberList(GetSpaceMemberListInputModel model)
         {
-            var result = _snippetDbContext.SpaceMembers.Where(sm => sm.SpaceId == model.spaceId)
-                .Skip((model.page - 1) * model.size).Take(model.size);
+            var result = (from sm in _snippetDbContext.SpaceMembers
+                          where sm.SpaceId == model.spaceId
+                          select new GetSpaceMemberListOutputModel(sm.MemberName, sm.MemberRole))
+                          .Skip((model.page - 1) * model.size)
+                          .Take(model.size);
             return this.SuccessCommonResult(result);
         }
+
+        /// <summary>
+        /// 添加空间成员
+        /// </summary>
 
         [HttpPost]
         public async Task<CommonResult> AddSpaceMember(AddSpaceMemberInputModel model)
@@ -122,6 +147,9 @@ namespace Snippet.Controllers
             return this.SuccessCommonResult();
         }
 
+        /// <summary>
+        /// 删除空间成员
+        /// </summary>
         [HttpPost]
         public async Task<CommonResult> RemoveSpaceMember(RemoveSpaceMemberInputModel model)
         {
