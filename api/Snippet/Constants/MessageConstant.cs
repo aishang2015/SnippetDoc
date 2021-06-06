@@ -36,5 +36,20 @@
         public static readonly (string, string) SPACE_ERROR_0001 = ("SPACE_ERROR_0001", "非系统管理员无法查看所有空间！");
 
         #endregion
+
+        #region DocController
+
+        public static readonly (string, string) DOC_INFO_001 = ("DOC_INFO_001", "文档创建成功！");
+        public static readonly (string, string) DOC_INFO_002 = ("DOC_INFO_002", "文档更新成功！");
+        public static readonly (string, string) DOC_INFO_003 = ("DOC_INFO_003", "已放入回收站！");
+        public static readonly (string, string) DOC_INFO_004 = ("DOC_INFO_004", "文档已恢复！");
+        public static readonly (string, string) DOC_INFO_005 = ("DOC_INFO_005", "文档及所有记录已删除！");
+        public static readonly (string, string) DOC_INFO_006 = ("DOC_INFO_006", "文件夹创建成功！");
+        public static readonly (string, string) DOC_INFO_007 = ("DOC_INFO_007", "文件夹删除成功！");
+        public static readonly (string, string) DOC_INFO_008 = ("DOC_INFO_008", "文件夹成功！");
+
+        public static readonly (string, string) DOC_ERROR_001 = ("DOC_ERROR_001", "无法删除，文件夹包含文件！");
+
+        #endregion
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Snippet.Business.Services;
+using Snippet.Constants;
 using Snippet.Core;
 using Snippet.Core.Data;
 using Snippet.Entity;
@@ -77,7 +78,7 @@ namespace Snippet.Controllers
 
             // 提交事务
             await trans.CommitAsync();
-            return this.SuccessCommonResult();
+            return this.SuccessCommonResult(MessageConstant.DOC_INFO_001);
         }
 
         [HttpPost]
@@ -113,7 +114,7 @@ namespace Snippet.Controllers
 
             await _snippetDbContext.SaveChangesAsync();
 
-            return this.SuccessCommonResult();
+            return this.SuccessCommonResult(MessageConstant.DOC_INFO_002);
         }
 
         [HttpPost]
@@ -122,7 +123,7 @@ namespace Snippet.Controllers
             var doc = _snippetDbContext.DocInfos.Find(model.id);
             doc.IsDelete = true;
             await _snippetDbContext.SaveChangesAsync();
-            return this.SuccessCommonResult();
+            return this.SuccessCommonResult(MessageConstant.DOC_INFO_003);
         }
 
         [HttpPost]
@@ -131,7 +132,7 @@ namespace Snippet.Controllers
             var doc = _snippetDbContext.DocInfos.Find(model.id);
             doc.IsDelete = false;
             await _snippetDbContext.SaveChangesAsync();
-            return this.SuccessCommonResult();
+            return this.SuccessCommonResult(MessageConstant.DOC_INFO_004);
         }
 
         [HttpPost]
@@ -144,7 +145,7 @@ namespace Snippet.Controllers
             _snippetDbContext.DocHistories.RemoveRange(docHistories);
 
             await _snippetDbContext.SaveChangesAsync();
-            return this.SuccessCommonResult();
+            return this.SuccessCommonResult(MessageConstant.DOC_INFO_005);
         }
 
         [HttpPost]
@@ -185,7 +186,7 @@ namespace Snippet.Controllers
                 Length = 0
             });
             await trans.CommitAsync();
-            return this.SuccessCommonResult();
+            return this.SuccessCommonResult(MessageConstant.DOC_INFO_006);
         }
 
         [HttpPost]
@@ -199,6 +200,47 @@ namespace Snippet.Controllers
                         select new GetFolderTreeOutputModel(folder.Id, folderTree.Ancestor, folder.Name);
 
             return this.SuccessCommonResult(query.ToList());
+        }
+
+        [HttpPost]
+        public async Task<CommonResult> DeleteFolder(DeleteFolderInputModel model)
+        {
+            var folderTrees = (from f in _snippetDbContext.DocFolders
+                               join ft in _snippetDbContext.DocFolderTrees
+                                   on f.Id equals ft.Ancestor
+                               select ft).Distinct().ToList();
+            var folderIds = folderTrees.Select(ft => ft.Descendant).Distinct().ToList();
+            var hasFile = (from d in _snippetDbContext.DocInfos
+                           where folderIds.Contains(d.FolderId.Value) &&
+                                 d.FolderId != null
+                           select d.Id).Any();
+
+            if (hasFile)
+            {
+                return this.FailCommonResult(MessageConstant.DOC_ERROR_001);
+            }
+
+            // 删除文件夹
+            var folders = (from f in _snippetDbContext.DocFolders
+                           where folderIds.Contains(f.Id)
+                           select f).ToList();
+            _snippetDbContext.DocFolders.RemoveRange(folders);
+
+            // 删除文件夹树
+            _snippetDbContext.DocFolderTrees.RemoveRange(folderTrees);
+
+            await _snippetDbContext.SaveChangesAsync();
+
+            return this.SuccessCommonResult(MessageConstant.DOC_INFO_007);
+        }
+
+        [HttpPost]
+        public async Task<CommonResult> UpdateFolder(UpdateFolderInputModel model)
+        {
+            var folder = _snippetDbContext.DocFolders.Find(model.folderId);
+            folder.Name = model.name;
+            await _snippetDbContext.SaveChangesAsync();
+            return this.SuccessCommonResult(MessageConstant.DOC_INFO_008);
         }
 
     }
