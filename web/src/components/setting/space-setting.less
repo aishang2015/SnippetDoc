@@ -1,0 +1,26 @@
+.space-container {
+
+    display              : grid;
+    grid-template-columns: repeat(3, 33.33%);
+
+    .space-card {
+        margin       : 10px;
+        padding      : 10px;
+        border-radius: 5px;
+        box-shadow   : 2px 2px 5px lightgray;
+
+
+
+        display        : flex;
+        justify-content: space-between;
+        align-items    : center;
+
+        .space-card-title {
+
+            width        : 110px;
+            overflow     : hidden;
+            text-overflow: ellipsis;
+            white-space  : nowrap;
+        }
+    }
+}

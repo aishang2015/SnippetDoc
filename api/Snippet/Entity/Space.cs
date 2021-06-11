@@ -8,5 +8,8 @@ namespace Snippet.Entity
 
         [Comment("空间名称")]
         public string Name { get; set; }
+
+        [Comment("空间类型 0：私有空间 1：公用空间")]
+        public int Type { get; set; }
     }
 }

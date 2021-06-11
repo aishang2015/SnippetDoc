@@ -36,7 +36,13 @@ namespace Snippet.Core.Data
                     var roleManager = services.GetRequiredService<RoleManager<SnippetRole>>();
                     roleManager.CreateAsync(new SnippetRole
                     {
-                        Name = "系统管理员"
+                        Id = 1,
+                        Name = CommonConstant.SystemManagerRole
+                    }).Wait();
+                    roleManager.CreateAsync(new SnippetRole
+                    {
+                        Id = 2,
+                        Name = CommonConstant.CommomUserRole
                     }).Wait();
 
                     userManager.AddToRoleAsync(user, CommonConstant.SystemManagerRole).Wait();

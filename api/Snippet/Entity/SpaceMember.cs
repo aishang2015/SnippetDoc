@@ -14,7 +14,7 @@ namespace Snippet.Entity
         public string MemberName { get; set; }
 
         // 0是指个人空间
-        [Comment("成员角色：0：拥有者，1管理员，2编辑人员，3浏览人员")]
+        [Comment("成员角色：0：拥有者，1：管理员，2：编辑员，3：观察员")]
         public int MemberRole { get; set; }
     }
 }

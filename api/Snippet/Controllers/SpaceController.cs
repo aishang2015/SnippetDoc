@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Snippet.Business.Services;
@@ -10,10 +8,8 @@ using Snippet.Core.Data;
 using Snippet.Entity;
 using Snippet.Models;
 using Snippet.Models.Space;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Snippet.Controllers
@@ -43,7 +39,8 @@ namespace Snippet.Controllers
         {
             _snippetDbContext.Spaces.Add(new Space
             {
-                Name = model.Name
+                Name = model.Name,
+                Type = 1
             });
             await _snippetDbContext.SaveChangesAsync();
             return this.SuccessCommonResult(MessageConstant.SPACE_INFO_0001);
@@ -103,13 +100,12 @@ namespace Snippet.Controllers
 
             // 查询所有非私有空间的空间进行管理
             var result = from space in _snippetDbContext.Spaces
-                         let spaceMemberGroup = (from spaceMember in _snippetDbContext.SpaceMembers
-                                                 where spaceMember.MemberRole != 0 && space.Id == spaceMember.SpaceId
-                                                 group spaceMember by spaceMember.SpaceId into spaceMemberGroup
-                                                 select new { Key = spaceMemberGroup.Key, Count = spaceMemberGroup.Count() }).ToList()
-                         join sm in _snippetDbContext.SpaceMembers on space.Id equals sm.SpaceId
-                         where sm.MemberRole != 0
-                         select new GetManageSpaceListOutputModel(space.Id, space.Name, spaceMemberGroup.Count());
+                         let subquery = (from sm in _snippetDbContext.SpaceMembers
+                                         where space.Id == sm.SpaceId
+                                         group sm by sm.SpaceId).ToList()
+                         where space.Type == 1
+                         orderby space.Id descending
+                         select new GetManageSpaceListOutputModel(space.Id, space.Name, subquery.Count());
 
             return this.SuccessCommonResult(result);
         }
