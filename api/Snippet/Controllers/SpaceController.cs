@@ -37,6 +37,11 @@ namespace Snippet.Controllers
         [HttpPost]
         public async Task<CommonResult> CreateSpace(CreateSpaceInputModel model)
         {
+            if (_snippetDbContext.Spaces.Any(s => s.Name == model.Name))
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0002);
+            };
+
             _snippetDbContext.Spaces.Add(new Space
             {
                 Name = model.Name,
@@ -64,6 +69,11 @@ namespace Snippet.Controllers
         [HttpPost]
         public async Task<CommonResult> DeleteSpace(DeleteSpaceInputModel model)
         {
+            if (_snippetDbContext.DocInfos.Any(d => d.SpaceId == model.id && !d.IsDelete))
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0005);
+            }
+
             var space = await _snippetDbContext.FindAsync<Space>(model.id);
             _snippetDbContext.Entry(space).State = EntityState.Deleted;
             await _snippetDbContext.SaveChangesAsync();

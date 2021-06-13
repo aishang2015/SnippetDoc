@@ -34,7 +34,10 @@
 
 
         public static readonly (string, string) SPACE_ERROR_0001 = ("SPACE_ERROR_0001", "非系统管理员无法查看所有空间！");
-
+        public static readonly (string, string) SPACE_ERROR_0002 = ("SPACE_ERROR_0002", "空间名称重复！");
+        public static readonly (string, string) SPACE_ERROR_0003 = ("SPACE_ERROR_0003", "空间名称不能为空！");
+        public static readonly (string, string) SPACE_ERROR_0004 = ("SPACE_ERROR_0004", "空间名称过长！");
+        public static readonly (string, string) SPACE_ERROR_0005 = ("SPACE_ERROR_0005", "空间中包含文档，无法删除！");
         #endregion
 
         #region DocController

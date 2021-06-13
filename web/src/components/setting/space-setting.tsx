@@ -1,8 +1,9 @@
 import { Button, Form, Input, Modal } from "antd";
 import { useEffect, useState } from "react";
-import { EditOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, PlusOutlined, DeleteOutlined, UsergroupAddOutlined } from '@ant-design/icons';
 import './space-setting.less';
 import { CreateSpaceModel, GetManageSpaceListResult, SpaceRequests, UpdateSpaceModel } from "../../http/requests/space";
+import { SpaceMember } from "./space-member";
 
 
 export function SpaceSetting() {
@@ -25,6 +26,21 @@ export function SpaceSetting() {
         catch (e) {
             console.error(e);
         }
+    }
+
+    async function deleteSpace(id: number) {
+        Modal.confirm({
+            title: "确认",
+            content: "是否删除该空间？",
+            onOk: async () => {
+                try {
+                    await SpaceRequests.deleteSpace({ id: id });
+                    await initData();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        });
     }
 
     async function addSpace() {
@@ -81,9 +97,10 @@ export function SpaceSetting() {
                         </div>
                         <div>
                             <Button type="link" icon={<DeleteOutlined />}
-                                onClick={() => editSpace(space.id)}></Button>
+                                onClick={() => deleteSpace(space.id)}></Button>
                             <Button type="link" icon={<EditOutlined />}
                                 onClick={() => editSpace(space.id)}></Button>
+                            <SpaceMember spaceId={space.id}/>
                         </div>
                     </div>
                 ))
@@ -95,7 +112,7 @@ export function SpaceSetting() {
                         <Input />
                     </Form.Item>
                     <Form.Item name="spaceName" label={"空间名称"}>
-                        <Input placeholder="请输入空间名称" />
+                        <Input placeholder="请输入空间名称" autoComplete="off" />
                     </Form.Item>
                     <Form.Item wrapperCol={{ offset: 6 }}>
                         <Button htmlType="submit">提交</Button>
