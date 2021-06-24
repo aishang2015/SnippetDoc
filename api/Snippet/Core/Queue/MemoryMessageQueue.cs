@@ -78,6 +78,5 @@ namespace Snippet.Core.Queue
                 }
             }, TaskCreationOptions.LongRunning);
         }
-
     }
 }

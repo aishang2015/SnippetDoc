@@ -95,7 +95,7 @@ class NavHeader extends React.Component<INavHeaderProps, INavHeaderState>{
                 </div>
 
                 <Modal title="系统设定" visible={this.state.isModalVisible} width='1000px'
-                    footer={null} onCancel={() => this.hideSetting()}>
+                    footer={null} onCancel={() => this.hideSetting()} destroyOnClose={true}>
                     <Setting></Setting>
                 </Modal>
             </Header>

@@ -15,6 +15,7 @@ namespace Snippet.Core.Cache
                 case "Memory":
                     services.AddDistributedMemoryCache();
                     break;
+
                 case "SQLServer":
                     services.AddDistributedSqlServerCache(options =>
                     {
@@ -22,6 +23,7 @@ namespace Snippet.Core.Cache
                         options.TableName = cacheOption.Store;
                     });
                     break;
+
                 case "Redis":
                     services.AddStackExchangeRedisCache(options =>
                     {
@@ -29,6 +31,7 @@ namespace Snippet.Core.Cache
                         options.InstanceName = cacheOption.Store;
                     });
                     break;
+
                 default:
                     services.AddDistributedMemoryCache();
                     break;

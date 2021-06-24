@@ -3,9 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Snippet.Constants;
 using Snippet.Core;
 using Snippet.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -14,12 +11,12 @@ namespace Snippet.Business.Services
     public interface IUserService
     {
         public string GetUserName();
+
         public Task<bool> IsSystemUserAsync();
     }
 
     public class UserService : IUserService
     {
-
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         private readonly UserManager<SnippetUser> _userManager;

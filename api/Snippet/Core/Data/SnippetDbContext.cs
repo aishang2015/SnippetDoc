@@ -6,7 +6,9 @@ namespace Snippet.Core.Data
 {
     public class SnippetDbContext : IdentityDbContext<SnippetUser, SnippetRole, int>
     {
-        public SnippetDbContext(DbContextOptions<SnippetDbContext> options) : base(options) { }
+        public SnippetDbContext(DbContextOptions<SnippetDbContext> options) : base(options)
+        {
+        }
 
         public DbSet<Space> Spaces { get; set; }
 
@@ -26,6 +28,12 @@ namespace Snippet.Core.Data
 
             // 打印sql参数
             optionsBuilder.EnableSensitiveDataLogging();
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            builder.Entity<SnippetUser>().HasQueryFilter(a => !a.IsDeleted);
         }
     }
 }

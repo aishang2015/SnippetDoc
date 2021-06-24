@@ -106,12 +106,17 @@ export function SpaceSetting() {
                 ))
             }
             <Modal visible={isEditVisible} forceRender={true} footer={null} onCancel={() => setIsEditVisible(false)}
-                title="编辑用户信息">
+                title="编辑空间信息">
                 <Form form={editForm} labelCol={{ span: 6 }} wrapperCol={{ span: 14 }} onFinish={submitEdit}>
                     <Form.Item name="id" hidden>
                         <Input />
                     </Form.Item>
-                    <Form.Item name="spaceName" label={"空间名称"}>
+                    <Form.Item name="spaceName" label={"空间名称"} rules={
+                        [
+                            { required: true, message: '请输入空间名称!' },
+                            { max: 40, message: '空间名称过长!' },
+                        ]
+                    }>
                         <Input placeholder="请输入空间名称" autoComplete="off" />
                     </Form.Item>
                     <Form.Item wrapperCol={{ offset: 6 }}>

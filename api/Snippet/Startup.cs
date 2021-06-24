@@ -119,7 +119,6 @@ namespace Snippet
                 endpoints.MapHubs();
                 endpoints.MapControllers();
             });
-
         }
     }
 }

@@ -32,7 +32,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                 { title: 'leaf 1-0', key: '0-1-0', isLeaf: true },
                 { title: 'leaf 1-1', key: '0-1-1', isLeaf: true },
             ],
-        },
+        }
     ];
 
     constructor(props: any) {
@@ -56,35 +56,29 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                     <Button type="text" shape="circle" icon={<SettingOutlined />} />
                 </div>
                 <Divider />
-                <Button type="primary" block icon={<PlusOutlined />}>
+                <Button block icon={<PlusOutlined />}>
                     创建文档
-                    </Button>
-                <ul className='menu-list' style={{ flex: 1 }}>
+                </Button>
+                <ul className='menu-list' style={{ flex: 1, overflow: 'auto' }}>
                     <li className={this.state.menuIndex === 1 ? 'menu-item menu-active' : 'menu-item'} onClick={() => this.setState({ menuIndex: 1 })}>
                         <FileTextOutlined /> &nbsp; &nbsp;内容
-                        </li>
-                    {this.state.menuIndex === 1 &&
-                        <div className="doc-tree">
-                            <Tree
-                                // titleRender={(node => (<div style={{
-                                //     textOverflow: 'ellipsis',
-                                //     whiteSpace: 'nowrap', overflow: 'hidden'
-                                // }}>{node.title}</div>))}
-                                blockNode={true}
-                                defaultExpandAll
-                                treeData={this.treeData}
-                            />
-                        </div>
-                    }
+                    </li>
+                    <div className="doc-tree">
+                        <Tree
+                            blockNode={true}
+                            defaultExpandAll={false}
+                            treeData={this.treeData}
+                        />
+                    </div>
                 </ul>
                 <Divider />
                 <ul className='menu-list' style={{ flex: 0 }}>
                     <li className={this.state.menuIndex === 2 ? 'menu-item menu-active' : 'menu-item'} onClick={() => this.setState({ menuIndex: 2 })}>
                         <FieldTimeOutlined /> &nbsp; &nbsp;最近
-                        </li>
+                    </li>
                     <li className={this.state.menuIndex === 3 ? 'menu-item menu-active' : 'menu-item'} onClick={() => this.setState({ menuIndex: 3 })}>
                         <DeleteOutlined /> &nbsp; &nbsp;回收站
-                        </li>
+                    </li>
                 </ul>
             </div>
         </>

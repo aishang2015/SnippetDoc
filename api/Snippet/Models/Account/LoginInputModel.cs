@@ -14,5 +14,4 @@ namespace Snippet.Models.Account
             RuleFor(x => x.Password).NotEmpty().ConfirmMessage(MessageConstant.ACCOUNT_ERROR_0003);
         }
     }
-
 }

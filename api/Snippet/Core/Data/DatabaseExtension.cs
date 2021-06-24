@@ -30,7 +30,6 @@ namespace Snippet.Core.Data
                         "Oracle" => option.UseOracle(databaseOption.Connection, b => b.UseOracleSQLCompatibility(databaseOption.Version)),
                         _ => option
                     };
-
                 }).AddIdentity<SnippetUser, SnippetRole>(option =>
                 {
                     // 密码强度设置
@@ -47,7 +46,6 @@ namespace Snippet.Core.Data
             }
             throw new Exception("没有配置数据库，无法找到数据库配置片段！");
         }
-
 
         public static IServiceCollection AddDatabase<TDbContext>(this IServiceCollection services,
             IConfiguration configuration, string optionKey = "DatabaseOption") where TDbContext : DbContext
@@ -70,7 +68,6 @@ namespace Snippet.Core.Data
                         "Oracle" => option.UseOracle(databaseOption.Connection, b => b.UseOracleSQLCompatibility(databaseOption.Version)),
                         _ => option
                     };
-
                 });
 
                 return services;

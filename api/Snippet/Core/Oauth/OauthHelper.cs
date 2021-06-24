@@ -38,7 +38,7 @@ namespace Snippet.Core.Oauth
             return await _githubApi.GetUserAsync($"token {responseObj.access_token}");
         }
 
-        #endregion
+        #endregion Github
 
         #region Baidu
 
@@ -51,6 +51,6 @@ namespace Snippet.Core.Oauth
             return await _baiduApi.GetUserAsync(responseObj.access_token);
         }
 
-        #endregion
+        #endregion Baidu
     }
 }

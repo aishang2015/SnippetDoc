@@ -51,13 +51,13 @@ export class Axios {
 
                     // 如果有成功消息的话则显示
                     if (response.data.code && response.data.message) {
-                        message.success(`${response.data.message}(${response.data.code})`);
+                        message.success(`${response.data.message}`);
                     }
                     return response;
                 } else {
                     // 处理失败
-                    message.error(`${response.data.message}(${response.data.code})`);
-                    return Promise.reject();
+                    message.error(`${response.data.message}`);
+                    return Promise.reject(response);
                 }
             },
             err => {

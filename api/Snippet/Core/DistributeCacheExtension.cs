@@ -28,7 +28,7 @@ namespace Snippet.Core
             return json is null ? null : JsonSerializer.Deserialize<T>(json);
         }
 
-        #endregion
+        #endregion 异步方法
 
         #region 同步方法
 
@@ -50,6 +50,7 @@ namespace Snippet.Core
             var json = cache.GetString(key);
             return json is null ? null : JsonSerializer.Deserialize<T>(json);
         }
-        #endregion
+
+        #endregion 同步方法
     }
 }

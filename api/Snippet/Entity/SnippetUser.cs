@@ -10,5 +10,11 @@ namespace Snippet.Entity
 
         [Comment("Baidu用户标识")]
         public string BaiduId { get; set; }
+
+        [Comment("是否使用")]
+        public bool IsActive { get; set; }
+
+        [Comment("是否删除")]
+        public bool IsDeleted { get; set; }
     }
 }

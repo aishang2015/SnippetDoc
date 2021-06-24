@@ -43,7 +43,7 @@ namespace Snippet.Controllers
             var result = new PagedModel<GetDocsOutputModel>
             {
                 Total = query.Count(),
-                Data = query.Skip(model.size * (model.page - 1)).Take(model.page)
+                PagedData = query.Skip(model.size * (model.page - 1)).Take(model.page)
             };
             return this.SuccessCommonResult(result);
         }
@@ -242,6 +242,5 @@ namespace Snippet.Controllers
             await _snippetDbContext.SaveChangesAsync();
             return this.SuccessCommonResult(MessageConstant.DOC_INFO_008);
         }
-
     }
 }

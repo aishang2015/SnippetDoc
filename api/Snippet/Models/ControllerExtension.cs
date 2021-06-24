@@ -4,7 +4,6 @@ namespace Snippet.Models
 {
     public static class ControllerExtension
     {
-
         #region 生成CommonResult
 
         /// <summary>
@@ -70,7 +69,7 @@ namespace Snippet.Models
             };
         }
 
-        #endregion
+        #endregion 生成CommonResult
 
         #region 生成泛型CommonResult
 
@@ -146,6 +145,6 @@ namespace Snippet.Models
             };
         }
 
-        #endregion
+        #endregion 生成泛型CommonResult
     }
 }

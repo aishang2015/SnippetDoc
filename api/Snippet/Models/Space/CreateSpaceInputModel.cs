@@ -11,8 +11,7 @@ namespace Snippet.Models.Space
         public CreateSpaceInputModelValidator()
         {
             RuleFor(m => m.Name).NotEmpty().ConfirmMessage(MessageConstant.SPACE_ERROR_0003);
-            RuleFor(m => m.Name).MaximumLength(50).ConfirmMessage(MessageConstant.SPACE_ERROR_0004);
+            RuleFor(m => m.Name).MaximumLength(40).ConfirmMessage(MessageConstant.SPACE_ERROR_0004);
         }
     }
-
 }

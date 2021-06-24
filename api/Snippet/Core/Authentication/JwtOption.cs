@@ -17,7 +17,7 @@ namespace Snippet.Core.Authentication
 
         public string SecretKey { get; set; }
 
-        #endregion
+        #endregion 配置属性
 
         public DateTime Expires { get => DateTime.Now.AddHours(ExpireSpan); }
 

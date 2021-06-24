@@ -62,6 +62,12 @@ namespace Snippet.Controllers
             var user = await _userManager.FindByNameAsync(inputModel.UserName);
             if (user != null)
             {
+                // 检查用户是否激活
+                if (!user.IsActive)
+                {
+                    return this.FailCommonResult(MessageConstant.ACCOUNT_ERROR_0008);
+                }
+
                 // 检查密码
                 var isValidPassword = await _userManager.CheckPasswordAsync(user, inputModel.Password);
                 if (isValidPassword)
@@ -137,6 +143,7 @@ namespace Snippet.Controllers
                     }
                     userName = findUser.UserName;
                     break;
+
                 default:
                     return this.FailCommonResult(MessageConstant.ACCOUNT_ERROR_0004);
             }
@@ -174,6 +181,7 @@ namespace Snippet.Controllers
                                 return this.FailCommonResult(MessageConstant.ACCOUNT_ERROR_0007);
                             }
                             break;
+
                         case CommonConstant.Baidu:
                             var baiduUserInfo = await _cache.GetAsync<BaiduUserInfo>(inputModel.ThirdPartyInfoCacheKey);
                             if (baiduUserInfo != null)
@@ -186,6 +194,7 @@ namespace Snippet.Controllers
                                 return this.FailCommonResult(MessageConstant.ACCOUNT_ERROR_0007);
                             }
                             break;
+
                         default:
                             return this.FailCommonResult(MessageConstant.ACCOUNT_ERROR_0004);
                     }
@@ -211,6 +220,5 @@ namespace Snippet.Controllers
                 new LoginOutputModel(token, username, _jwtOption.Expires)
             );
         }
-
     }
 }

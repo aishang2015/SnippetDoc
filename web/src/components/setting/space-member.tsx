@@ -1,5 +1,5 @@
 import { Button, Form, Modal, Pagination, Select, Space, Table } from "antd";
-import { UsergroupAddOutlined } from '@ant-design/icons';
+import { UsergroupAddOutlined, PlusOutlined } from '@ant-design/icons';
 import React, { useState } from "react";
 import { SpaceRequests } from "../../http/requests/space";
 import { DebounceSelect } from "../select/debounce-select";
@@ -81,7 +81,7 @@ export function SpaceMember(props: any) {
     }
 
     let submitMemberForm = (values: any) => {
-
+        console.log(values);
     }
 
 
@@ -91,17 +91,20 @@ export function SpaceMember(props: any) {
                 onClick={setSpaceMember}></Button>
             <Modal visible={isEditVisible} footer={null} forceRender={true} title="设定空间成员"
                 onCancel={() => setIsEditVisible(false)} width='1000px'>
-                <Button type="primary" style={{ marginBottom: '10px' }} onClick={addMember}>添加成员</Button>
+                <Button style={{ marginBottom: '10px' }} onClick={addMember}><PlusOutlined />添加成员</Button>
                 <Table bordered pagination={false} style={{ marginBottom: '10px' }} columns={columns}>
 
                 </Table>
-                <Pagination pageSize={size} style={{ marginBottom: '10px' }} />
+                <Pagination pageSize={size} current={page} defaultCurrent={page} showSizeChanger={false}
+                    style={{ marginBottom: '10px' }} />
             </Modal>
             <Modal visible={isSelectVisible} footer={null} forceRender={true} title="选择成员"
                 onCancel={() => setIsSelectVisible(false)}>
                 <Form labelCol={{ span: 6 }} wrapperCol={{ span: 14 }} form={setMemberForm}
                     onFinish={submitMemberForm}>
-                    <Form.Item label="选择用户">
+                    <Form.Item label="选择用户" name="user" rules={[
+                        { required: true, message: '请选择用户!' },
+                    ]}>
                         <DebounceSelect fetchOptions={fetchUsers} placeholder="请选择用户"
                             showSearch
                             value={value}
@@ -109,7 +112,9 @@ export function SpaceMember(props: any) {
                                 setValue(newValue);
                             }} allowClear></DebounceSelect>
                     </Form.Item>
-                    <Form.Item label="选择角色">
+                    <Form.Item label="选择角色" name="role" rules={[
+                        { required: true, message: '请选择角色!' },
+                    ]}>
                         <Select placeholder="请选择角色">
                             <Select.Option value={1}>管理员</Select.Option>
                             <Select.Option value={2}>编辑者</Select.Option>
@@ -117,7 +122,7 @@ export function SpaceMember(props: any) {
                         </Select>
                     </Form.Item>
                     <Form.Item wrapperCol={{ offset: 6 }}>
-                        <Button>确定</Button>
+                        <Button htmlType='submit'>确定</Button>
                     </Form.Item>
                 </Form>
             </Modal>

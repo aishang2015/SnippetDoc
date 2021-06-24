@@ -30,20 +30,20 @@ namespace Snippet.Core.Data
                         UserName = "admin",
                         Email = "admin@tttttttttt.com.cn",
                         PhoneNumber = "16655558888",
+                        IsActive = true,
+                        IsDeleted = false
                     };
                     userManager.CreateAsync(user, "admin").Wait();
 
                     var roleManager = services.GetRequiredService<RoleManager<SnippetRole>>();
-                    roleManager.CreateAsync(new SnippetRole
+                    foreach (var kv in CommonConstant.RoleDic)
                     {
-                        Id = 1,
-                        Name = CommonConstant.SystemManagerRole
-                    }).Wait();
-                    roleManager.CreateAsync(new SnippetRole
-                    {
-                        Id = 2,
-                        Name = CommonConstant.CommomUserRole
-                    }).Wait();
+                        roleManager.CreateAsync(new SnippetRole
+                        {
+                            Id = kv.Key,
+                            Name = kv.Value
+                        }).Wait();
+                    }
 
                     userManager.AddToRoleAsync(user, CommonConstant.SystemManagerRole).Wait();
 

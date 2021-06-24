@@ -51,6 +51,5 @@ namespace Snippet.Core
         {
             return queryable.Skip((page - 1) * size).Take(size);
         }
-
     }
 }

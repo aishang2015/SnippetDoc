@@ -57,6 +57,11 @@ namespace Snippet.Controllers
         [HttpPost]
         public async Task<CommonResult> UpdateSpace(UpdateSpaceInputModel model)
         {
+            if (_snippetDbContext.Spaces.Any(s => s.Name == model.Name && s.Id != model.id))
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0002);
+            };
+
             var space = await _snippetDbContext.FindAsync<Space>(model.id);
             space.Name = model.Name;
             await _snippetDbContext.SaveChangesAsync();
@@ -165,6 +170,5 @@ namespace Snippet.Controllers
             await _snippetDbContext.SaveChangesAsync();
             return this.SuccessCommonResult();
         }
-
     }
 }

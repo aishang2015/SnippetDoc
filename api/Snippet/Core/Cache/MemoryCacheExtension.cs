@@ -9,7 +9,5 @@ namespace Snippet.Core.Cache
             services.AddScoped<MemoryCacheHelper>();
             return services.AddMemoryCache();
         }
-
-
     }
 }

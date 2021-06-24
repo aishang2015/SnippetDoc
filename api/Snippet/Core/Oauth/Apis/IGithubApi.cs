@@ -17,5 +17,4 @@ namespace Snippet.Core.Oauth.Apis
         [Get("/user")]
         Task<GithubUserInfo> GetUserAsync([Header("Authorization")] string authorization);
     }
-
 }
