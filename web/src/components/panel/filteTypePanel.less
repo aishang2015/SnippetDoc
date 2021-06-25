@@ -1,0 +1,27 @@
+#grid-container {
+    display              : grid;
+    grid-template-columns: repeat(5, 150px);
+    grid-template-rows   : repeat(2, 150px);
+    grid-column-gap      : 10px;
+    grid-row-gap         : 10px;
+
+    .file-type-item {
+        border    : 1px solid gainsboro;
+        box-shadow: 2px 2px 5px lightgrey;
+
+        display        : flex;
+        flex-direction : column;
+        justify-content: space-evenly;
+        align-items    : center;
+
+        span {
+            font-weight: 500;
+        }
+    }
+
+    .file-type-item:hover {
+        background: @primary-color;
+        cursor    : pointer;
+        color     : white;
+    }
+}

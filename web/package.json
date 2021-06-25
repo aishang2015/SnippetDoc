@@ -8,6 +8,7 @@
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.6.0",
+    "@tinymce/tinymce-react": "^3.12.6",
     "@types/jest": "^26.0.22",
     "@types/lodash": "^4.14.170",
     "@types/node": "^12.19.13",
