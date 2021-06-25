@@ -57,7 +57,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                 </div>
                 <Divider />
                 <Button block icon={<PlusOutlined />}>
-                    创建文档
+                    创建
                 </Button>
                 <ul className='menu-list' style={{ flex: 1, overflow: 'auto' }}>
                     <li className={this.state.menuIndex === 1 ? 'menu-item menu-active' : 'menu-item'} onClick={() => this.setState({ menuIndex: 1 })}>

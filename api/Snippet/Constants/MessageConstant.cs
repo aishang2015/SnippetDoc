@@ -36,12 +36,18 @@
         public static readonly (string, string) SPACE_INFO_0001 = ("SPACE_INFO_0001", "空间创建成功！");
         public static readonly (string, string) SPACE_INFO_0002 = ("SPACE_INFO_0002", "空间更新成功！");
         public static readonly (string, string) SPACE_INFO_0003 = ("SPACE_INFO_0003", "空间删除成功！");
+        public static readonly (string, string) SPACE_INFO_0004 = ("SPACE_INFO_0004", "成员添加成功！");
+        public static readonly (string, string) SPACE_INFO_0005 = ("SPACE_INFO_0005", "成员角色更新成功！");
+        public static readonly (string, string) SPACE_INFO_0006 = ("SPACE_INFO_0006", "成员移出成功！");
 
         public static readonly (string, string) SPACE_ERROR_0001 = ("SPACE_ERROR_0001", "非系统管理员无法查看所有空间！");
         public static readonly (string, string) SPACE_ERROR_0002 = ("SPACE_ERROR_0002", "空间名称重复！");
         public static readonly (string, string) SPACE_ERROR_0003 = ("SPACE_ERROR_0003", "空间名称不能为空！");
         public static readonly (string, string) SPACE_ERROR_0004 = ("SPACE_ERROR_0004", "空间名称过长！");
         public static readonly (string, string) SPACE_ERROR_0005 = ("SPACE_ERROR_0005", "空间中包含文档，无法删除！");
+        public static readonly (string, string) SPACE_ERROR_0006 = ("SPACE_ERROR_0006", "此用户已经在此空间中！");
+        public static readonly (string, string) SPACE_ERROR_0007 = ("SPACE_ERROR_0007", "空间中不存在该用户！");
+        public static readonly (string, string) SPACE_ERROR_0008 = ("SPACE_ERROR_0008", "角色没有变化！");
 
         #endregion SpaceController
 

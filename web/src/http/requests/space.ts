@@ -32,6 +32,10 @@ export class SpaceRequests {
         return Axios.instance.post<EmptyCommonResult>('api/space/addSpaceMember', model);
     }
 
+    public static updateSpaceMember(model: UpdateSpaceMemberModel) {
+        return Axios.instance.post<EmptyCommonResult>('api/space/updateSpaceMember', model);
+    }
+
     public static removeSpaceMember(model: RemoveSpaceMemberModel) {
         return Axios.instance.post<EmptyCommonResult>('api/space/removeSpaceMember', model);
     }
@@ -69,11 +73,22 @@ export interface GetSpaceMemberListModel {
 }
 
 export interface GetSpaceMemberResult {
-    memberName: string;
-    memberRole: number;
+    total: number,
+    pagedData: [
+        {
+            memberName: string;
+            memberRole: number;
+        }
+    ]
 }
 
 export interface AddSpaceMemberModel {
+    spaceId: number;
+    userName: string;
+    role: number;
+}
+
+export interface UpdateSpaceMemberModel {
     spaceId: number;
     userName: string;
     role: number;

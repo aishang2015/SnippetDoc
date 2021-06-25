@@ -131,12 +131,15 @@ namespace Snippet.Controllers
         [HttpPost]
         public CommonResult GetSpaceMemberList(GetSpaceMemberListInputModel model)
         {
-            var result = (from sm in _snippetDbContext.SpaceMembers
-                          where sm.SpaceId == model.spaceId
-                          select new GetSpaceMemberListOutputModel(sm.MemberName, sm.MemberRole))
-                          .Skip((model.page - 1) * model.size)
-                          .Take(model.size);
-            return this.SuccessCommonResult(result);
+            var query = (from sm in _snippetDbContext.SpaceMembers
+                         where sm.SpaceId == model.spaceId
+                         select new GetSpaceMemberListOutputModel(sm.MemberName, sm.MemberRole));
+
+            return this.SuccessCommonResult(new PagedModel<GetSpaceMemberListOutputModel>
+            {
+                PagedData = query.Skip((model.page - 1) * model.size).Take(model.size),
+                Total = query.Count()
+            });
         }
 
         /// <summary>
@@ -146,6 +149,12 @@ namespace Snippet.Controllers
         [HttpPost]
         public async Task<CommonResult> AddSpaceMember(AddSpaceMemberInputModel model)
         {
+            if (_snippetDbContext.SpaceMembers.Any(sm =>
+                 sm.SpaceId == model.spaceId && sm.MemberName == model.userName))
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0006);
+            }
+
             // 添加空间成员
             await _snippetDbContext.SpaceMembers.AddAsync(new SpaceMember
             {
@@ -155,7 +164,32 @@ namespace Snippet.Controllers
             });
             await _snippetDbContext.SaveChangesAsync();
 
-            return this.SuccessCommonResult();
+            return this.SuccessCommonResult(MessageConstant.SPACE_INFO_0004);
+        }
+
+        /// <summary>
+        /// 更新空间成员的角色
+        /// </summary>
+
+        [HttpPost]
+        public async Task<CommonResult> UpdateSpaceMember(UpdateSpaceMemberInputModel model)
+        {
+            var sm = _snippetDbContext.SpaceMembers.FirstOrDefault(sm =>
+                 sm.SpaceId == model.spaceId && sm.MemberName == model.userName);
+            if (sm == null)
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0007);
+            }
+
+            if (sm.MemberRole == model.role)
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0008);
+            }
+
+            sm.MemberRole = model.role;
+            await _snippetDbContext.SaveChangesAsync();
+
+            return this.SuccessCommonResult(MessageConstant.SPACE_INFO_0005);
         }
 
         /// <summary>
@@ -165,10 +199,11 @@ namespace Snippet.Controllers
         public async Task<CommonResult> RemoveSpaceMember(RemoveSpaceMemberInputModel model)
         {
             // 删除空间成员
-            var sm = _snippetDbContext.SpaceMembers.Find(model.spaceId);
+            var sm = _snippetDbContext.SpaceMembers.FirstOrDefault(sm =>
+                sm.SpaceId == model.spaceId && sm.MemberName == model.userName);
             _snippetDbContext.SpaceMembers.Remove(sm);
             await _snippetDbContext.SaveChangesAsync();
-            return this.SuccessCommonResult();
+            return this.SuccessCommonResult(MessageConstant.SPACE_INFO_0006);
         }
     }
 }
