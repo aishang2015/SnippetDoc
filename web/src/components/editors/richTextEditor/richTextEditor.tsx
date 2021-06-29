@@ -22,8 +22,8 @@ export function RichTextEditor() {
                     menubar: false,
                     plugins: 'print preview paste importcss searchreplace autolink directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
                     toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | table | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview print | insertfile image media template link anchor codesample code | ltr rtl | ',
-                    images_upload_url: `${Configuration.BaseUrl}/upload`,
-                    images_upload_base_path: `${Configuration.BaseUrl}/file`,
+                    images_upload_url: `${Configuration.BaseUrl}/api/file/uploadFile`,
+                    images_upload_base_path: `${Configuration.BaseUrl}/files`,
                     // codesample_languages: [
                     //     { text: 'HTML/XML', value: 'markup' },
                     //     { text: 'JavaScript', value: 'javascript' },

@@ -7,8 +7,12 @@ namespace Snippet.Constants
         public const string Github = "github";
         public const string Baidu = "baidu";
 
+        public const string LocalFileStoreFolder = "FileStore";
+
         public const string SystemManagerRole = "系统管理员";
         public const string CommomUserRole = "普通用户";
+
+        public const string PrivatlySpaceName = "我的空间";
 
         public static readonly Dictionary<int, string> RoleDic = new Dictionary<int, string>
         {

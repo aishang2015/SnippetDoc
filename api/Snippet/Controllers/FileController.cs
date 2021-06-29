@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Snippet.Constants;
 using Snippet.Core.Data;
 using Snippet.Models;
 using Snippet.Models.File;
@@ -12,7 +13,6 @@ namespace Snippet.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    [Authorize]
     public class FileController : ControllerBase
     {
         private readonly SnippetDbContext _snippetDbContext;
@@ -27,9 +27,9 @@ namespace Snippet.Controllers
         }
 
         [HttpPost]
-        public CommonResult UploadFile([FromForm] UploadInputModel model)
+        public IActionResult UploadFile([FromForm] UploadInputModel model)
         {
-            var distFolder = Path.Combine(_webHostEnvironment.ContentRootPath, "FileStore");
+            var distFolder = Path.Combine(_webHostEnvironment.ContentRootPath, CommonConstant.LocalFileStoreFolder);
             if (!Directory.Exists(distFolder))
             {
                 Directory.CreateDirectory(distFolder);
@@ -42,7 +42,10 @@ namespace Snippet.Controllers
             inputStream.CopyTo(outputStream);
             outputStream.Flush();
 
-            return this.SuccessCommonResult(new UploadOutputModel(newFileName));
+            return Ok(new
+            {
+                location = newFileName
+            });
         }
     }
 }

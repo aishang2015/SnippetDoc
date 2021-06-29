@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Snippet.Business;
+using Snippet.Constants;
 using Snippet.Core;
 using Snippet.Core.Authentication;
 using Snippet.Core.Cache;
@@ -109,8 +110,8 @@ namespace Snippet
             // 访问静态文件
             app.UseStaticFiles(new StaticFileOptions()
             {
-                FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "FileStore")),
-                RequestPath = new PathString("/file")
+                FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, CommonConstant.LocalFileStoreFolder)),
+                RequestPath = new PathString("/files")
             });
 
             // 配置signalr路径

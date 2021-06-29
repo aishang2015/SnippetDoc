@@ -93,11 +93,11 @@ namespace Snippet.Controllers
         {
             var userName = _userService.GetUserName();
 
-            // 查找用户能看到的所有空间，私有空间的名称是空，所以填充上“我的空间”
+            // 查找用户能看到的所有空间
             var result = (from space in _snippetDbContext.Spaces
                           join spaceMember in _snippetDbContext.SpaceMembers on space.Id equals spaceMember.Id
                           where spaceMember.MemberName == userName
-                          select new GetSpaceListOutputModel(space.Id, space.Name ?? "我的空间", spaceMember.MemberRole)).ToList();
+                          select new GetSpaceListOutputModel(space.Id, space.Name, spaceMember.MemberRole)).ToList();
             return this.SuccessCommonResult(result.OrderBy(d => d.role));
         }
 

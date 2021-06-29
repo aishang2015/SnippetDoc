@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Snippet.Constants;
 using Snippet.Core;
 using Snippet.Core.Authentication;
+using Snippet.Core.Data;
 using Snippet.Core.Oauth;
 using Snippet.Core.Oauth.Models;
 using Snippet.Entity;
@@ -34,6 +35,8 @@ namespace Snippet.Controllers
 
         private readonly IDistributedCache _cache;
 
+        private readonly SnippetDbContext _snippetDbContext;
+
         private readonly JwtOption _jwtOption;
 
         public AccountController(
@@ -42,6 +45,7 @@ namespace Snippet.Controllers
             IJwtFactory jwtFactory,
             IMapper mapper,
             IDistributedCache cache,
+            SnippetDbContext snippetDbContext,
             IOptions<JwtOption> options)
         {
             _userManager = userManager;
@@ -49,6 +53,7 @@ namespace Snippet.Controllers
             _jwtFactory = jwtFactory;
             _mapper = mapper;
             _cache = cache;
+            _snippetDbContext = snippetDbContext;
             _jwtOption = options.Value;
         }
 
@@ -72,6 +77,9 @@ namespace Snippet.Controllers
                 var isValidPassword = await _userManager.CheckPasswordAsync(user, inputModel.Password);
                 if (isValidPassword)
                 {
+                    // 初始化用户私有空间
+                    await InitialUserSpaceAsync(user.UserName);
+
                     return GetSuccessTokenResult(inputModel.UserName);
                 }
             }
@@ -148,6 +156,9 @@ namespace Snippet.Controllers
                     return this.FailCommonResult(MessageConstant.ACCOUNT_ERROR_0004);
             }
 
+            // 初始化用户私有空间
+            await InitialUserSpaceAsync(userName);
+
             // 根据找到的用户信息生成登录token
             return GetSuccessTokenResult(userName);
         }
@@ -199,25 +210,59 @@ namespace Snippet.Controllers
                             return this.FailCommonResult(MessageConstant.ACCOUNT_ERROR_0004);
                     }
 
+                    // 初始化用户私有空间
+                    await InitialUserSpaceAsync(user.UserName);
+
                     return GetSuccessTokenResult(user.UserName);
                 }
             }
             return this.FailCommonResult(MessageConstant.ACCOUNT_ERROR_0001);
         }
 
+
+        private async Task InitialUserSpaceAsync(string userName)
+        {
+            var havePrivatlySpaceQuery = _snippetDbContext.Spaces.Any(s => s.Owner == userName && s.Type == 0);
+
+            // 没有私人空间则进行创建
+            if (!havePrivatlySpaceQuery)
+            {
+                using var tran = await _snippetDbContext.Database.BeginTransactionAsync();
+
+                // 创建空间
+                var spaceEntity = await _snippetDbContext.Spaces.AddAsync(new Space
+                {
+                    Name = CommonConstant.PrivatlySpaceName,
+                    Type = 0,
+                    Owner = userName
+                });
+                await _snippetDbContext.SaveChangesAsync();
+
+                // 添加空间成员
+                await _snippetDbContext.SpaceMembers.AddAsync(new SpaceMember
+                {
+                    SpaceId = spaceEntity.Entity.Id,
+                    MemberName = userName,
+                    MemberRole = 0
+                });
+                await _snippetDbContext.SaveChangesAsync();
+                await tran.CommitAsync();
+            }
+        }
+
         /// <summary>
         /// 生成token返回结果
         /// </summary>
-        private CommonResult GetSuccessTokenResult(string username)
+        private CommonResult GetSuccessTokenResult(string userName)
         {
             // 生成包含username的token
             var token = _jwtFactory.GenerateJwtToken(new List<(string, string)>
                     {
-                        (ClaimTypes.NameIdentifier,username)
+                        (ClaimTypes.NameIdentifier,userName)
                     });
             return this.SuccessCommonResult(
                 MessageConstant.ACCOUNT_INFO_0001,
-                new LoginOutputModel(token, username, _jwtOption.Expires)
+                new LoginOutputModel(token, userName, _jwtOption.Expires)
             );
         }
     }
