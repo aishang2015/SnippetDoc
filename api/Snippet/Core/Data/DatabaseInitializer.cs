@@ -31,7 +31,9 @@ namespace Snippet.Core.Data
                         Email = "admin@tttttttttt.com.cn",
                         PhoneNumber = "16655558888",
                         IsActive = true,
-                        IsDeleted = false
+                        IsDeleted = false,
+                        AvatarColor = "#f5222d",
+                        AvatarText = "A"
                     };
                     userManager.CreateAsync(user, "admin").Wait();
 

@@ -13,6 +13,8 @@
 
         public static readonly (string, string) ACCOUNT_INFO_0001 = ("ACCOUNT_INFO_0001", "登录成功！");
         public static readonly (string, string) ACCOUNT_INFO_0002 = ("ACCOUNT_INFO_0002", "第三方信息获取成功，请绑定您的账号！");
+        public static readonly (string, string) ACCOUNT_INFO_0003 = ("ACCOUNT_INFO_0003", "头像信息更新成功！");
+        public static readonly (string, string) ACCOUNT_INFO_0004 = ("ACCOUNT_INFO_0004", "密码修改完毕！");
 
         public static readonly (string, string) ACCOUNT_ERROR_0001 = ("ACCOUNT_ERROR_0001", "账号或密码错误！");
         public static readonly (string, string) ACCOUNT_ERROR_0002 = ("ACCOUNT_ERROR_0002", "请输入账号！");
@@ -22,6 +24,7 @@
         public static readonly (string, string) ACCOUNT_ERROR_0006 = ("ACCOUNT_ERROR_0006", "第三方信息缓存密钥不能是空！");
         public static readonly (string, string) ACCOUNT_ERROR_0007 = ("ACCOUNT_ERROR_0007", "第三方账号信息已过期，请返回登陆页面重试！");
         public static readonly (string, string) ACCOUNT_ERROR_0008 = ("ACCOUNT_ERROR_0008", "账号未激活！");
+        public static readonly (string, string) ACCOUNT_ERROR_0009 = ("ACCOUNT_ERROR_0009", "旧密码错误！");
 
         #endregion AccountController
 

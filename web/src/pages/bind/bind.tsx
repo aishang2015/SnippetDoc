@@ -3,7 +3,7 @@ import React from "react";
 import { GithubOutlined, UserOutlined, LockOutlined } from '@ant-design/icons';
 
 import './bind.less';
-import { BindingModel, bindingThirdPartyAccount } from "../../http/requests/account";
+import { BindingModel, bindingThirdPartyAccount, getUserInfo } from "../../http/requests/account";
 import { StorageService } from "../../common/storage";
 
 interface BindState {
@@ -87,6 +87,10 @@ export class Bind extends React.Component<any, BindState> {
 
             // 保存登录信息
             StorageService.setLoginStore(result.accessToken, result.userName, result.expire.toString());
+
+            let userResponse = await getUserInfo();
+            StorageService.setUserInfo(userResponse.data.data.avatarColor, userResponse.data.data.avatarText);
+
             window.location.reload();
         } catch (err) {
             return;

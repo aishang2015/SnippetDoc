@@ -1,4 +1,4 @@
-import { CommonResult } from "../common-result";
+import { CommonResult, EmptyCommonResult } from "../common-result";
 import { Axios } from "../request";
 
 export function login(model: LoginModel) {
@@ -7,6 +7,14 @@ export function login(model: LoginModel) {
 
 export function getUserInfo() {
     return Axios.instance.post<CommonResult<UserInfoResult>>('api/account/getCurrentUserInfo', null);
+}
+
+export function updateUserAvatar(model: UserAvatarInfo) {
+    return Axios.instance.post<EmptyCommonResult>('api/account/updateUserAvatar', model);
+}
+
+export function changePassword(model: ChangePwdModel) {
+    return Axios.instance.post<EmptyCommonResult>('api/account/changePassword', model);
 }
 
 export function handleThirdPartyCode(code: string, source: string) {
@@ -36,6 +44,19 @@ export interface UserInfoResult {
     userName: string;
     email: string;
     phoneNumber: string;
+    avatarColor: string;
+    avatarText: string;
+}
+
+export interface UserAvatarInfo {
+    avatarColor: string,
+    avatarText: string
+}
+
+export interface ChangePwdModel {
+    oldPassword: string,
+    confirmPassword: string,
+    newPassword: string
 }
 
 export interface ThirdPartyLoginResult {

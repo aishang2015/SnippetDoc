@@ -3,7 +3,7 @@ import './login.less';
 import React from "react";
 import { Button, Card, Form, Input } from 'antd';
 import { UserOutlined, LockOutlined, GithubOutlined } from '@ant-design/icons';
-import { LoginModel, login } from '../../http/requests/account';
+import { LoginModel, login, getUserInfo } from '../../http/requests/account';
 import { withRouter } from 'react-router-dom';
 import { OauthService } from '../../common/oauth';
 import { StorageService } from '../../common/storage';
@@ -53,17 +53,21 @@ class Login extends React.Component<any> {
         };
 
         try {
-            
+
             let response = await login(model);
 
             let result = response.data.data;
 
             // 保存登录信息
             StorageService.setLoginStore(result.accessToken, result.userName, result.expire.toString());
+
+            let userResponse = await getUserInfo();
+            StorageService.setUserInfo(userResponse.data.data.avatarColor, userResponse.data.data.avatarText);
+
             window.location.reload();
 
         } catch (err) {
-            return;
+            console.error(err);
         }
     }
 

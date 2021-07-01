@@ -14,6 +14,12 @@ namespace Snippet.Entity
         [Comment("是否使用")]
         public bool IsActive { get; set; }
 
+        [Comment("头像背景色")]
+        public string AvatarColor { get; set; }
+
+        [Comment("头像文字")]
+        public string AvatarText { get; set; }
+
         [Comment("是否删除")]
         public bool IsDeleted { get; set; }
     }

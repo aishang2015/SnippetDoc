@@ -61,6 +61,7 @@ namespace Snippet.Controllers
         /// 登录操作
         /// </summary>
         [HttpPost]
+        [ProducesResponseType(typeof(CommonResult<LoginOutputModel>), 200)]
         public async Task<CommonResult> Login([FromBody] LoginInputModel inputModel)
         {
             // 取得用户
@@ -91,6 +92,7 @@ namespace Snippet.Controllers
         /// </summary>
         [Authorize]
         [HttpPost]
+        [ProducesResponseType(typeof(CommonResult<UserInfoOutputModel>), 200)]
         public async Task<CommonResult> GetCurrentUserInfo()
         {
             // 查找自己的信息
@@ -99,6 +101,40 @@ namespace Snippet.Controllers
             // 返回结果
             return this.SuccessCommonResult(MessageConstant.EMPTYTUPLE,
                 _mapper.Map<UserInfoOutputModel>(user));
+        }
+
+        /// <summary>
+        /// 更新用户头像
+        /// </summary>
+        [Authorize]
+        [HttpPost]
+        public async Task<CommonResult> UpdateUserAvatar(UpdateUserAvatarInputModel inputModel)
+        {
+            // 查找自己的信息
+            var user = await _userManager.FindByNameAsync(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            user.AvatarColor = inputModel.avatarColor;
+            user.AvatarText = inputModel.avatarText;
+            await _userManager.UpdateAsync(user);
+            return this.SuccessCommonResult(MessageConstant.ACCOUNT_INFO_0003);
+        }
+
+        /// <summary>
+        /// 修改密码
+        /// </summary>
+        [Authorize]
+        [HttpPost]
+        public async Task<CommonResult> ChangePassword(ChangePasswordInputModel inputModel)
+        {
+            // 查找自己的信息
+            var user = await _userManager.FindByNameAsync(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var isRightOldPwd = await _userManager.CheckPasswordAsync(user, inputModel.oldPassword);
+            if (!isRightOldPwd)
+            {
+                return this.FailCommonResult(MessageConstant.ACCOUNT_ERROR_0009);
+            }
+            await _userManager.RemovePasswordAsync(user);
+            await _userManager.AddPasswordAsync(user, inputModel.newPassword);
+            return this.SuccessCommonResult(MessageConstant.ACCOUNT_INFO_0004);
         }
 
         /// <summary>
@@ -219,7 +255,9 @@ namespace Snippet.Controllers
             return this.FailCommonResult(MessageConstant.ACCOUNT_ERROR_0001);
         }
 
-
+        /// <summary>
+        /// 初始化用户的私有空间
+        /// </summary>
         private async Task InitialUserSpaceAsync(string userName)
         {
             var havePrivatlySpaceQuery = _snippetDbContext.Spaces.Any(s => s.Owner == userName && s.Type == 0);
