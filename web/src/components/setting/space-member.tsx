@@ -19,7 +19,7 @@ export function SpaceMember(props: any) {
     const [isSetRoleVisible, setIsSetRoleVisible] = useState(false);
     const [value, setValue] = React.useState<UserValue[]>([]);
     const [page, setPage] = useState(1);
-    const [size, setSize] = useState(10);
+    const [size] = useState(10);
     const [total, setTotal] = useState(0);
     const [tableData, setTableData] = useState(new Array<any>());
     const [setMemberForm] = Form.useForm();

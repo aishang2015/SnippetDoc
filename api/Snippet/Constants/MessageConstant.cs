@@ -25,6 +25,7 @@
         public static readonly (string, string) ACCOUNT_ERROR_0007 = ("ACCOUNT_ERROR_0007", "第三方账号信息已过期，请返回登陆页面重试！");
         public static readonly (string, string) ACCOUNT_ERROR_0008 = ("ACCOUNT_ERROR_0008", "账号未激活！");
         public static readonly (string, string) ACCOUNT_ERROR_0009 = ("ACCOUNT_ERROR_0009", "旧密码错误！");
+        public static readonly (string, string) ACCOUNT_ERROR_0010 = ("ACCOUNT_ERROR_0010", "新密码和旧密码不一致！");
 
         #endregion AccountController
 

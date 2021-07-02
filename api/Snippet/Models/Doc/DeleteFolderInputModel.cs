@@ -1,4 +1,4 @@
 ﻿namespace Snippet.Models.Doc
 {
-    public record DeleteFolderInputModel(int folderId);
+    public record DeleteFolderInputModel(int spaceId, int folderId);
 }

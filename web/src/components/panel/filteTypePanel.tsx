@@ -8,7 +8,7 @@ export function FileTypePanel(props: {
 }) {
 
     function selected(type: number) {
-        if (props.onSelected != undefined) {
+        if (props.onSelected !== undefined) {
             props.onSelected(type);
         }
     }

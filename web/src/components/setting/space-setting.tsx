@@ -1,6 +1,6 @@
 import { Button, Form, Input, Modal } from "antd";
 import { useEffect, useState } from "react";
-import { EditOutlined, PlusOutlined, DeleteOutlined, UsergroupAddOutlined } from '@ant-design/icons';
+import { EditOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import './space-setting.less';
 import { CreateSpaceModel, GetManageSpaceListResult, SpaceRequests, UpdateSpaceModel } from "../../http/requests/space";
 import { SpaceMember } from "./space-member";

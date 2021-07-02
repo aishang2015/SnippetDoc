@@ -8,6 +8,7 @@ using Snippet.Entity;
 using Snippet.Models;
 using Snippet.Models.Doc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,6 +30,7 @@ namespace Snippet.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(CommonResult<PagedModel<GetDocsOutputModel>>), 200)]
         public CommonResult GetDocs(GetDocsInputModel model)
         {
             var query = from d in _snippetDbContext.DocInfos
@@ -185,18 +187,20 @@ namespace Snippet.Controllers
                 Descendant = entity.Entity.Id,
                 Length = 0
             });
+            await _snippetDbContext.SaveChangesAsync();
             await trans.CommitAsync();
             return this.SuccessCommonResult(MessageConstant.DOC_INFO_006);
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(CommonResult<List<GetFolderTreeOutputModel>>), 200)]
         public CommonResult GetFolderTree(GetFolderTreeInputModel model)
         {
             var query = from folder in _snippetDbContext.DocFolders
-                        join folderTree in _snippetDbContext.DocFolderTrees
+                        join folderTree in _snippetDbContext.DocFolderTrees.Where(ft => ft.Length == 1)
                             on folder.Id equals folderTree.Descendant into ftGroup
                         from folderTree in ftGroup.DefaultIfEmpty()
-                        where folderTree.Length == 1
+                        where folder.SpaceId == model.spaceId
                         select new GetFolderTreeOutputModel(folder.Id, folderTree.Ancestor, folder.Name);
 
             return this.SuccessCommonResult(query.ToList());
@@ -239,6 +243,63 @@ namespace Snippet.Controllers
         {
             var folder = _snippetDbContext.DocFolders.Find(model.folderId);
             folder.Name = model.name;
+
+            // 上级文件夹id
+            int? upFolderId = (from ft in _snippetDbContext.DocFolderTrees
+                               where ft.Length == 1 && ft.Descendant == model.folderId
+                               select ft.Ancestor).First();
+            if (upFolderId != model.upFolderId)
+            {
+                //// 找到当前文件夹的祖先节点集合
+                //var upFolderIds = from ft in _snippetDbContext.DocFolderTrees
+                //                  where ft.Descendant == folder.Id && ft.Length > 0
+                //                  select ft.Ancestor;
+
+                //// 找到当前文件夹的后代节点集合
+                //var subFolderIds = from ft in _snippetDbContext.DocFolderTrees
+                //                   where ft.Ancestor == folder.Id
+                //                   select ft.Descendant;
+
+                // 找到上一步祖先节点和后代节点之间的所有关系
+                var treeNodes = from ft in _snippetDbContext.DocFolderTrees
+                                let upfolderIdQuery = (from ft1 in _snippetDbContext.DocFolderTrees
+                                                       where ft1.Descendant == folder.Id && ft1.Length > 0
+                                                       select ft1.Ancestor).ToList()
+                                let subFolderIdQuery = (from ft2 in _snippetDbContext.DocFolderTrees
+                                                        where ft2.Ancestor == folder.Id
+                                                        select ft2.Descendant).ToList()
+                                where upfolderIdQuery.Contains(ft.Ancestor) && subFolderIdQuery.Contains(ft.Descendant)
+                                select ft;
+                _snippetDbContext.RemoveRange(treeNodes);
+
+                // 当前文件夹的子树
+                var moveNodes = (from ft in _snippetDbContext.DocFolderTrees
+                                 where ft.Ancestor == folder.Id
+                                 select ft).ToList();
+
+                // 找到新父节点的全部祖先
+                var newParents = (from ft in _snippetDbContext.DocFolderTrees
+                                  where ft.Descendant == model.upFolderId
+                                  select ft).ToList();
+
+                // 笛卡尔积构造新的上级树和子树的关系
+                foreach (var parent in newParents)
+                {
+                    foreach (var node in moveNodes)
+                    {
+                        await _snippetDbContext.DocFolderTrees.AddAsync(new DocFolderTree
+                        {
+                            Ancestor = parent.Ancestor,
+                            Descendant = node.Descendant,
+                            Length = parent.Length + node.Length + 1
+                        });
+                    }
+                }
+
+            }
+
+
+
             await _snippetDbContext.SaveChangesAsync();
             return this.SuccessCommonResult(MessageConstant.DOC_INFO_008);
         }

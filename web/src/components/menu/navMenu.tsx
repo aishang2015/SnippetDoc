@@ -1,6 +1,5 @@
 import {
-    SettingOutlined, PlusOutlined, FileTextOutlined, FieldTimeOutlined, DeleteOutlined,
-    FrownFilled
+    SettingOutlined, PlusOutlined, FileTextOutlined, FieldTimeOutlined, DeleteOutlined
 } from '@ant-design/icons';
 import React from "react";
 import { Button, Divider, Modal, Select, Tree } from "antd";
@@ -9,6 +8,10 @@ import './navMenu.less';
 import { FileTypePanel } from '../panel/filteTypePanel';
 import { RichTextEditor } from '../editors/richTextEditor/richTextEditor';
 import { GetUserSpaceListResult, SpaceRequests } from '../../http/requests/space';
+import { EditFolder } from '../modals/editFolder';
+import { FolderRequests } from '../../http/requests/folder';
+import { TreeUtil } from '../../common/tree-util';
+import { DataNode } from 'antd/lib/tree';
 
 interface INavMenuProps {
     collapsed: boolean;
@@ -21,28 +24,14 @@ interface INavMenuState {
 
     spaceList: GetUserSpaceListResult[];
     selectedSpace: number;
+
+    editFolderVisible: boolean;
+
+    treeData: any[];
 }
 
 class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
 
-    treeData = [
-        {
-            title: 'parent 0',
-            key: '0-0',
-            children: [
-                { title: 'leaf 0-0222222222222222222233333333333333333322222', key: '0-0-0', isLeaf: true },
-                { title: 'leaf 0-1', key: '0-0-1', isLeaf: true },
-            ],
-        },
-        {
-            title: 'parent 1',
-            key: '0-1',
-            children: [
-                { title: 'leaf 1-0', key: '0-1-0', isLeaf: true },
-                { title: 'leaf 1-1', key: '0-1-1', isLeaf: true },
-            ],
-        }
-    ];
 
     constructor(props: any) {
         super(props);
@@ -50,17 +39,24 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
             menuIndex: 1,
             isFileTypeModalVisible: false,
             richTextModalVisible: false,
-            spaceList: new Array<GetUserSpaceListResult>(),
-            selectedSpace: 0
+            spaceList: [{ id: 0, name: '我的空间', role: 0 }],
+            selectedSpace: 0,
+            editFolderVisible: false,
+            treeData: []
         }
     }
 
     async componentDidMount() {
         try {
             var userSpace = await SpaceRequests.getUserSpaceList();
+
+            let spaceId = userSpace.data.data[0].id;
+            let response = await FolderRequests.getFolderTree({ spaceId: spaceId });
+            let treedata = TreeUtil.MakeAntTreeKeyData(response.data.data, null);
             this.setState({
+                treeData: treedata,
                 spaceList: userSpace.data.data,
-                selectedSpace: userSpace.data.data[0].id
+                selectedSpace: spaceId
             });
         } catch (e) {
             console.error(e);
@@ -75,7 +71,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                 borderTop: '1px solid #eeeeff'
             }}><div>
                     <Select value={this.state.selectedSpace} style={{ width: 170 }} bordered={false} size="small"
-                        onChange={value => this.setState({ selectedSpace: value })}>
+                        onChange={this.selectSpaceChange.bind(this)}>
                         {this.state.spaceList.map(s => (
                             <Select.Option value={s.id}>{s.name}</Select.Option>
                         ))}
@@ -87,7 +83,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                     创建
                 </Button>
                 <ul className='menu-list' style={{ flex: 1, overflow: 'auto' }}>
-                    <li className={this.state.menuIndex === 1 ? 'menu-item menu-active' : 'menu-item'} onClick={()=>this.setMenuIndex(1)}>
+                    <li className={this.state.menuIndex === 1 ? 'menu-item menu-active' : 'menu-item'} onClick={() => this.setMenuIndex(1)}>
                         <FileTextOutlined /> &nbsp; &nbsp;内容
                     </li>
                     <div className="doc-tree">
@@ -95,16 +91,21 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                             showIcon
                             blockNode={true}
                             defaultExpandAll={false}
-                            treeData={this.treeData}
+                            treeData={this.state.treeData}
+                            titleRender={(node: DataNode) => (
+                                <>{node.title}
+                                    
+                                </>
+                            )}
                         />
                     </div>
                 </ul>
                 <Divider />
                 <ul className='menu-list' style={{ flex: 0 }}>
-                    <li className={this.state.menuIndex === 2 ? 'menu-item menu-active' : 'menu-item'} onClick={()=>this.setMenuIndex(2)}>
+                    <li className={this.state.menuIndex === 2 ? 'menu-item menu-active' : 'menu-item'} onClick={() => this.setMenuIndex(2)}>
                         <FieldTimeOutlined /> &nbsp; &nbsp;最近
                     </li>
-                    <li className={this.state.menuIndex === 3 ? 'menu-item menu-active' : 'menu-item'} onClick={()=>this.setMenuIndex(3)}>
+                    <li className={this.state.menuIndex === 3 ? 'menu-item menu-active' : 'menu-item'} onClick={() => this.setMenuIndex(3)}>
                         <DeleteOutlined /> &nbsp; &nbsp;回收站
                     </li>
                 </ul>
@@ -116,6 +117,8 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                     onCancel={() => this.closeRichTextModal()} destroyOnClose={true}>
                     <RichTextEditor />
                 </Modal>
+                <EditFolder spaceId={this.state.selectedSpace} visible={this.state.editFolderVisible}
+                    onCancel={() => this.closeEditFolder()} />
             </div>
         </>
     );
@@ -123,6 +126,21 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
     // 大菜单选择
     setMenuIndex(index: number) {
         this.setState({ menuIndex: index });
+    }
+
+    // 选择空间变化
+    async selectSpaceChange(value: number) {
+        try {
+            let response = await FolderRequests.getFolderTree({ spaceId: value });
+            let treedata = TreeUtil.MakeAntTreeKeyData(response.data.data, null);
+            this.setState({
+                selectedSpace: value,
+                treeData: treedata
+            });
+        }
+        catch (e) {
+            console.error(e);
+        }
     }
 
     // 选择创建内容类型
@@ -135,9 +153,15 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
     // 选择了文件类型
     selectFileType(type: number) {
         this.closeFileTypeModal();
-        this.setState({
-            richTextModalVisible: true
-        });
+        if (type === 1) {
+            this.setState({
+                editFolderVisible: true
+            });
+        } else if (type === 2) {
+            this.setState({
+                richTextModalVisible: true
+            });
+        }
     }
 
     // 关闭文件类型模态框
@@ -150,6 +174,15 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
     closeRichTextModal() {
         this.setState({
             richTextModalVisible: false
+        });
+    }
+
+    async closeEditFolder() {
+        let response = await FolderRequests.getFolderTree({ spaceId: this.state.selectedSpace });
+        let treedata = TreeUtil.MakeAntTreeKeyData(response.data.data, null);
+        this.setState({
+            treeData: treedata,
+            editFolderVisible: false
         });
     }
 }
