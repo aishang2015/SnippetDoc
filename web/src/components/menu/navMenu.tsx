@@ -1,7 +1,7 @@
 import {
     SettingOutlined, PlusOutlined, FileTextOutlined, FieldTimeOutlined, DeleteOutlined
 } from '@ant-design/icons';
-import React from "react";
+import React, { Key } from "react";
 import { Button, Divider, Modal, Select, Tree } from "antd";
 import { connect } from "react-redux";
 import './navMenu.less';
@@ -11,13 +11,14 @@ import { GetUserSpaceListResult, SpaceRequests } from '../../http/requests/space
 import { EditFolder } from '../modals/editFolder';
 import { FolderRequests } from '../../http/requests/folder';
 import { TreeUtil } from '../../common/tree-util';
-import { DataNode } from 'antd/lib/tree';
+import { Dispatch } from 'redux';
+import { onClassifyChange } from '../../redux/classify/classifyCreator';
 
-interface INavMenuProps {
+type INavMenuProps = {
     collapsed: boolean;
-}
+} & any
 
-interface INavMenuState {
+type INavMenuState = {
     menuIndex: number;
     isFileTypeModalVisible: boolean;
     richTextModalVisible: boolean;
@@ -28,6 +29,8 @@ interface INavMenuState {
     editFolderVisible: boolean;
 
     treeData: any[];
+
+    selectedKeys: any[];
 }
 
 class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
@@ -36,13 +39,14 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
     constructor(props: any) {
         super(props);
         this.state = {
-            menuIndex: 1,
+            menuIndex: 0,
             isFileTypeModalVisible: false,
             richTextModalVisible: false,
             spaceList: [{ id: 0, name: '我的空间', role: 0 }],
             selectedSpace: 0,
             editFolderVisible: false,
-            treeData: []
+            treeData: [],
+            selectedKeys: []
         }
     }
 
@@ -89,14 +93,11 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                     <div className="doc-tree">
                         <Tree.DirectoryTree
                             showIcon
+                            selectedKeys={this.state.selectedKeys}
                             blockNode={true}
                             defaultExpandAll={false}
                             treeData={this.state.treeData}
-                            titleRender={(node: DataNode) => (
-                                <>{node.title}
-                                    
-                                </>
-                            )}
+                            onSelect={this.selectDocTree.bind(this)}
                         />
                     </div>
                 </ul>
@@ -125,7 +126,13 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
 
     // 大菜单选择
     setMenuIndex(index: number) {
+        if (index !== 1) {
+            this.setState({ selectedKeys: [] });
+        }
         this.setState({ menuIndex: index });
+        
+        // 全局同步
+        this.props.classifyChange({ spaceId: this.state.selectedSpace, classify: index });
     }
 
     // 选择空间变化
@@ -137,6 +144,9 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                 selectedSpace: value,
                 treeData: treedata
             });
+        
+            // 全局同步
+            this.props.classifyChange({ spaceId: value, classify: this.state.menuIndex });
         }
         catch (e) {
             console.error(e);
@@ -185,10 +195,25 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
             editFolderVisible: false
         });
     }
+
+    // 选择文件夹树
+    selectDocTree(selectedKeys: Key[], info: any) {
+        this.setState({
+            menuIndex: 1,
+            selectedKeys: selectedKeys
+        });
+        
+        // 全局同步
+        this.props.classifyChange({ spaceId: this.state.selectedSpace, classify: 1 });
+    }
 }
 
 export default connect(
     (state: any) => ({
         collapsed: state.NavCollapsedReducer.collapsed
+    }),
+    (dispatch: Dispatch) => ({
+        classifyChange: (data: { spaceId: number, classify: number }) =>
+            dispatch(onClassifyChange(data.spaceId, data.classify)),
     })
 )(NavMenu);
