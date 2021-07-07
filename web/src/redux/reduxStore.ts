@@ -3,6 +3,7 @@ import { CounterReducer } from "./counter/counterReducer";
 import { NavCollapsedReducer } from "./navCollapsed/navCollapsedReducer";
 import { NotificationReducer } from "./notification/notificationReducer";
 import { ClassifyReducer } from "./classify/classifyReducer";
+import { TargetFileReducer } from "./targetFile/targetFileReducer";
 
 export class ReduxStore {
 
@@ -11,7 +12,8 @@ export class ReduxStore {
             CounterReducer,
             NavCollapsedReducer,
             NotificationReducer,
-            ClassifyReducer
+            ClassifyReducer,
+            TargetFileReducer
         });
 
         return createStore(reducer);

@@ -4,6 +4,7 @@ import React from "react";
 import { getUserInfo } from '../../http/requests/account';
 import { connect } from 'react-redux';
 import { Welcome } from '../../components/nodata/welcome';
+import { ContentPart } from '../../components/home/content';
 
 type home = {
     id?: number;
@@ -38,7 +39,7 @@ export class Home extends React.Component<any, home>{
     getTitle(classify: number) {
         switch (classify) {
             case 1:
-                return (<><span className="content-title">内容</span></>);
+                return (<ContentPart/>);
             case 2:
                 return (<><span className="content-title">最近</span></>);
             case 3:
@@ -53,7 +54,7 @@ export class Home extends React.Component<any, home>{
                 {(this.props.classify === null || this.props.classify === 0) ?
                     <Welcome /> :
                     <>
-                        <p>{this.getTitle(this.props.classify)}</p>
+                        {this.getTitle(this.props.classify)}
                     </>
                 }
                 {/* <p>登录用户信息</p>

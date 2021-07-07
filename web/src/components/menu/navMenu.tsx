@@ -13,6 +13,7 @@ import { FolderRequests } from '../../http/requests/folder';
 import { TreeUtil } from '../../common/tree-util';
 import { Dispatch } from 'redux';
 import { onClassifyChange } from '../../redux/classify/classifyCreator';
+import { onTargetFileChange } from '../../redux/targetFile/targetFileCreator';
 
 type INavMenuProps = {
     collapsed: boolean;
@@ -126,13 +127,14 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
 
     // 大菜单选择
     setMenuIndex(index: number) {
-        if (index !== 1) {
-            this.setState({ selectedKeys: [] });
-        }
-        this.setState({ menuIndex: index });
-        
+        this.setState({
+            menuIndex: index,
+            selectedKeys: []
+        });
+
         // 全局同步
         this.props.classifyChange({ spaceId: this.state.selectedSpace, classify: index });
+        this.props.selectFileChange(null, null);
     }
 
     // 选择空间变化
@@ -142,11 +144,13 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
             let treedata = TreeUtil.MakeAntTreeKeyData(response.data.data, null);
             this.setState({
                 selectedSpace: value,
-                treeData: treedata
+                treeData: treedata,
+                menuIndex: 0
             });
-        
+
             // 全局同步
-            this.props.classifyChange({ spaceId: value, classify: this.state.menuIndex });
+            this.props.classifyChange({ spaceId: value, classify: 0 });
+            this.props.selectFileChange(null, null);
         }
         catch (e) {
             console.error(e);
@@ -202,9 +206,10 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
             menuIndex: 1,
             selectedKeys: selectedKeys
         });
-        
+
         // 全局同步
         this.props.classifyChange({ spaceId: this.state.selectedSpace, classify: 1 });
+        this.props.selectFileChange(1, selectedKeys[0]);
     }
 }
 
@@ -215,5 +220,7 @@ export default connect(
     (dispatch: Dispatch) => ({
         classifyChange: (data: { spaceId: number, classify: number }) =>
             dispatch(onClassifyChange(data.spaceId, data.classify)),
+        selectFileChange: (fileType: number, fileId: number) =>
+            dispatch(onTargetFileChange(fileType, fileId))
     })
 )(NavMenu);
