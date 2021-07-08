@@ -67,6 +67,7 @@
         public static readonly (string, string) DOC_INFO_008 = ("DOC_INFO_008", "文件夹成功！");
 
         public static readonly (string, string) DOC_ERROR_001 = ("DOC_ERROR_001", "无法删除，文件夹包含文件！");
+        public static readonly (string, string) DOC_ERROR_002 = ("DOC_ERROR_002", "上级文件夹不能指定为编辑中的文件夹！");
 
         #endregion DocController
 

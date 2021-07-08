@@ -1,7 +1,9 @@
 import { Button, Form, Input, Modal, TreeSelect } from "antd";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { TreeUtil } from "../../common/tree-util";
 import { FolderRequests } from "../../http/requests/folder";
+import { FolderTwoTone, EditOutlined } from '@ant-design/icons';
+import { EventUtil } from "../../common/event";
 
 
 export function EditFolder(props: any) {
@@ -9,9 +11,7 @@ export function EditFolder(props: any) {
     const [folderForm] = Form.useForm();
     const [treeData, setTreeData] = useState(new Array<any>());
 
-    useEffect(() => {
-        initFolderData();
-    }, [props.spaceId]);
+    const [modalVisible, setModalVisible] = useState(false);
 
     async function initFolderData() {
         try {
@@ -24,20 +24,58 @@ export function EditFolder(props: any) {
 
     async function submitForm(values: any) {
         try {
-            await FolderRequests.createFolder({ spaceId: props.spaceId, name: values['folderName'], upFolderId: values['up'] });
+            if (props.folderId === undefined) {
+                await FolderRequests.createFolder({ spaceId: props.spaceId, name: values['folderName'], upFolderId: values['up'] });
+            } else {
+                await FolderRequests.updateFolder({ folderId: props.folderId, spaceId: props.spaceId, name: values['folderName'], upFolderId: values['up'] })
+            }
             await initFolderData();
             folderForm.resetFields();
+            EventUtil.EventEmitterInstance().emit('folderChange', true);
         }
         catch (e) {
             console.error(e);
         }
-        props.onCancel();
+        setModalVisible(false);
+    }
+
+    async function addNewFolder() {
+        await initFolderData();
+        setModalVisible(true);
+    }
+
+    async function modifyFolder() {
+        try {
+            await initFolderData();
+            let response = await FolderRequests.getFolder({ folderId: props.folderId });
+            folderForm.resetFields();
+            folderForm.setFieldsValue({
+                up: response.data.data.upId,
+                folderName: response.data.data.name
+            });
+        } catch (e) {
+            console.error(e);
+        }
+
+        setModalVisible(true);
+    }
+
+    function closeEditModal() {
+        setModalVisible(false);
+        folderForm.resetFields();
     }
 
     return (
         <>
-            <Modal visible={props.visible} onCancel={props.onCancel} footer={null} width={700} title="编辑文件夹信息"
-                destroyOnClose={true}>
+            {props.folderId === undefined ?
+                <div className="file-type-item" onClick={addNewFolder}>
+                    <FolderTwoTone style={{ fontSize: '60px' }} />
+                    <span>文件夹</span>
+                </div>
+                :
+                <Button style={{ marginRight: '10px' }} icon={<EditOutlined />} onClick={modifyFolder}>修改</Button>
+            }
+            <Modal visible={modalVisible} onCancel={closeEditModal} footer={null} width={700} title="编辑文件夹信息">
                 <Form form={folderForm} onFinish={submitForm}>
                     <Form.Item labelCol={{ span: 6 }} wrapperCol={{ span: 12 }} label="上级文件夹" name="up">
                         <TreeSelect
@@ -57,7 +95,7 @@ export function EditFolder(props: any) {
                     </Form.Item>
                     <Form.Item wrapperCol={{ offset: 6, span: 12 }}>
                         <Button htmlType="submit" style={{ marginRight: '10px' }}>提交</Button>
-                        <Button htmlType="button" onClick={() => props.onCancel()}>取消</Button>
+                        <Button htmlType="button" onClick={closeEditModal}>取消</Button>
                     </Form.Item>
                 </Form>
             </Modal>

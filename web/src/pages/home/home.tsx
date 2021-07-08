@@ -36,7 +36,7 @@ export class Home extends React.Component<any, home>{
     }
 
     // 标题内容
-    getTitle(classify: number) {
+    getDisplayCom(classify: number) {
         switch (classify) {
             case 1:
                 return (<ContentPart/>);
@@ -54,7 +54,7 @@ export class Home extends React.Component<any, home>{
                 {(this.props.classify === null || this.props.classify === 0) ?
                     <Welcome /> :
                     <>
-                        {this.getTitle(this.props.classify)}
+                        {this.getDisplayCom(this.props.classify)}
                     </>
                 }
                 {/* <p>登录用户信息</p>

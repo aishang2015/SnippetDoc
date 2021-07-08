@@ -1,5 +1,4 @@
 import { Button, Form, Input } from "antd";
-import { values } from "lodash";
 import { useEffect } from "react";
 import { changePassword } from "../../http/requests/account";
 
@@ -23,7 +22,7 @@ export function PwdSetting(props: any) {
 
     useEffect(() => {
         pwdForm.resetFields();
-    }, [])
+    }, [pwdForm])
 
     return (
         <>

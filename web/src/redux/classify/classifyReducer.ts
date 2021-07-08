@@ -8,7 +8,9 @@ export const ClassifyReducer: Reducer<ClassifyState> = (state, action: ClassifyA
     if (state === undefined) {
         return {
             spaceId: null,
-            classify: null
+            classify: null,
+            fileType: null,
+            fileId: null
         };
     }
 
@@ -16,7 +18,9 @@ export const ClassifyReducer: Reducer<ClassifyState> = (state, action: ClassifyA
         case "CLASSIFY_CHANGE":
             return {
                 spaceId: action.spaceId!,
-                classify: action.classify!
+                classify: action.classify!,
+                fileType: action.fileType!,
+                fileId: action.fileId!
             };
         default:
             return state;

@@ -19,7 +19,7 @@ export function UserSetting(props: any) {
         });
         setDisplayColor(StorageService.getAvatarColor()!);
         setDisplayText(StorageService.getAvatarText()!);
-    }, []);
+    }, [userForm]);
 
     async function submitUserInfo(values: any) {
         try {

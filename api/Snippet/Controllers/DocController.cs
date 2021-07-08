@@ -207,11 +207,26 @@ namespace Snippet.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(CommonResult<GetFolderOutputModel>), 200)]
+        public CommonResult GetFolder(GetFolderInputModel model)
+        {
+            var query = from folder in _snippetDbContext.DocFolders
+                        join folderTree in _snippetDbContext.DocFolderTrees.Where(ft => ft.Length == 1)
+                            on folder.Id equals folderTree.Descendant into ftGroup
+                        from folderTree in ftGroup.DefaultIfEmpty()
+                        where folder.Id == model.folderId
+                        select new GetFolderOutputModel(folderTree.Ancestor, folder.Name);
+
+            return this.SuccessCommonResult(query.FirstOrDefault());
+        }
+
+        [HttpPost]
         public async Task<CommonResult> DeleteFolder(DeleteFolderInputModel model)
         {
             var folderTrees = (from f in _snippetDbContext.DocFolders
                                join ft in _snippetDbContext.DocFolderTrees
                                    on f.Id equals ft.Ancestor
+                               where f.Id == model.folderId
                                select ft).Distinct().ToList();
             var folderIds = folderTrees.Select(ft => ft.Descendant).Distinct().ToList();
             var hasFile = (from d in _snippetDbContext.DocInfos
@@ -241,13 +256,18 @@ namespace Snippet.Controllers
         [HttpPost]
         public async Task<CommonResult> UpdateFolder(UpdateFolderInputModel model)
         {
+            if (model.upFolderId == model.folderId)
+            {
+                return this.FailCommonResult(MessageConstant.DOC_ERROR_002);
+            }
+
             var folder = _snippetDbContext.DocFolders.Find(model.folderId);
             folder.Name = model.name;
 
             // 上级文件夹id
             int? upFolderId = (from ft in _snippetDbContext.DocFolderTrees
                                where ft.Length == 1 && ft.Descendant == model.folderId
-                               select ft.Ancestor).First();
+                               select ft.Ancestor).FirstOrDefault();
             if (upFolderId != model.upFolderId)
             {
                 //// 找到当前文件夹的祖先节点集合

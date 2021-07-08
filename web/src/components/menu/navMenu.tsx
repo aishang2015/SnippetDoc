@@ -8,12 +8,11 @@ import './navMenu.less';
 import { FileTypePanel } from '../panel/filteTypePanel';
 import { RichTextEditor } from '../editors/richTextEditor/richTextEditor';
 import { GetUserSpaceListResult, SpaceRequests } from '../../http/requests/space';
-import { EditFolder } from '../modals/editFolder';
 import { FolderRequests } from '../../http/requests/folder';
 import { TreeUtil } from '../../common/tree-util';
 import { Dispatch } from 'redux';
 import { onClassifyChange } from '../../redux/classify/classifyCreator';
-import { onTargetFileChange } from '../../redux/targetFile/targetFileCreator';
+import { EventUtil } from '../../common/event';
 
 type INavMenuProps = {
     collapsed: boolean;
@@ -26,8 +25,6 @@ type INavMenuState = {
 
     spaceList: GetUserSpaceListResult[];
     selectedSpace: number;
-
-    editFolderVisible: boolean;
 
     treeData: any[];
 
@@ -45,7 +42,6 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
             richTextModalVisible: false,
             spaceList: [{ id: 0, name: '我的空间', role: 0 }],
             selectedSpace: 0,
-            editFolderVisible: false,
             treeData: [],
             selectedKeys: []
         }
@@ -66,6 +62,15 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
         } catch (e) {
             console.error(e);
         }
+
+        let that = this;
+        EventUtil.EventEmitterInstance().on('folderChange', function (text: any) {
+            that.reloadFolderTree();
+        });
+        EventUtil.EventEmitterInstance().on('folderDelete', function (text: any) {
+            that.reloadFolderTree();
+            that.setMenuIndex(0);
+        });
     }
 
     render = () => (
@@ -96,7 +101,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                             showIcon
                             selectedKeys={this.state.selectedKeys}
                             blockNode={true}
-                            defaultExpandAll={false}
+                            expandAction={false}
                             treeData={this.state.treeData}
                             onSelect={this.selectDocTree.bind(this)}
                         />
@@ -112,15 +117,13 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                     </li>
                 </ul>
                 <Modal footer={null} title="请选择" visible={this.state.isFileTypeModalVisible} width={840}
-                    onCancel={() => this.closeFileTypeModal()}>
-                    <FileTypePanel onSelected={this.selectFileType.bind(this)} />
+                    onCancel={() => this.selectTypeEnd()} >
+                    <FileTypePanel onSelected={this.selectTypeEnd.bind(this)}/>
                 </Modal>
                 <Modal footer={null} title="富文本编辑器" visible={this.state.richTextModalVisible} width={1280}
                     onCancel={() => this.closeRichTextModal()} destroyOnClose={true}>
                     <RichTextEditor />
                 </Modal>
-                <EditFolder spaceId={this.state.selectedSpace} visible={this.state.editFolderVisible}
-                    onCancel={() => this.closeEditFolder()} />
             </div>
         </>
     );
@@ -133,8 +136,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
         });
 
         // 全局同步
-        this.props.classifyChange({ spaceId: this.state.selectedSpace, classify: index });
-        this.props.selectFileChange(null, null);
+        this.props.classifyChange(this.state.selectedSpace, index, null, null);
     }
 
     // 选择空间变化
@@ -145,12 +147,12 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
             this.setState({
                 selectedSpace: value,
                 treeData: treedata,
-                menuIndex: 0
+                menuIndex: 0,
+                selectedKeys: []
             });
 
             // 全局同步
-            this.props.classifyChange({ spaceId: value, classify: 0 });
-            this.props.selectFileChange(null, null);
+            this.props.classifyChange(value, 0, null, null);
         }
         catch (e) {
             console.error(e);
@@ -164,39 +166,34 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
         });
     }
 
-    // 选择了文件类型
-    selectFileType(type: number) {
-        this.closeFileTypeModal();
-        if (type === 1) {
-            this.setState({
-                editFolderVisible: true
-            });
-        } else if (type === 2) {
-            this.setState({
-                richTextModalVisible: true
-            });
-        }
+    async selectTypeEnd(){
+        this.setState({
+            isFileTypeModalVisible: false
+        });
     }
 
     // 关闭文件类型模态框
-    closeFileTypeModal() {
+    async closeFileTypeModal() {
+        let response = await FolderRequests.getFolderTree({ spaceId: this.state.selectedSpace });
+        let treedata = TreeUtil.MakeAntTreeKeyData(response.data.data, null);
         this.setState({
+            treeData: treedata,
             isFileTypeModalVisible: false
+        });
+    }
+
+    // 重新加载文件夹树
+    async reloadFolderTree() {
+        let response = await FolderRequests.getFolderTree({ spaceId: this.state.selectedSpace });
+        let treedata = TreeUtil.MakeAntTreeKeyData(response.data.data, null);
+        this.setState({
+            treeData: treedata
         });
     }
 
     closeRichTextModal() {
         this.setState({
             richTextModalVisible: false
-        });
-    }
-
-    async closeEditFolder() {
-        let response = await FolderRequests.getFolderTree({ spaceId: this.state.selectedSpace });
-        let treedata = TreeUtil.MakeAntTreeKeyData(response.data.data, null);
-        this.setState({
-            treeData: treedata,
-            editFolderVisible: false
         });
     }
 
@@ -208,8 +205,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
         });
 
         // 全局同步
-        this.props.classifyChange({ spaceId: this.state.selectedSpace, classify: 1 });
-        this.props.selectFileChange(1, selectedKeys[0]);
+        this.props.classifyChange(this.state.selectedSpace, 1, 1, selectedKeys[0]);
     }
 }
 
@@ -218,9 +214,7 @@ export default connect(
         collapsed: state.NavCollapsedReducer.collapsed
     }),
     (dispatch: Dispatch) => ({
-        classifyChange: (data: { spaceId: number, classify: number }) =>
-            dispatch(onClassifyChange(data.spaceId, data.classify)),
-        selectFileChange: (fileType: number, fileId: number) =>
-            dispatch(onTargetFileChange(fileType, fileId))
+        classifyChange: (spaceId: number, classify: number, fileType: number, fileId: number) =>
+            dispatch(onClassifyChange(spaceId, classify, fileType, fileId))
     })
 )(NavMenu);

@@ -13,6 +13,10 @@ export class FolderRequests {
         return Axios.instance.post<CommonResult<getFolderTreeResponse[]>>('api/doc/getFolderTree', model);
     }
 
+    public static getFolder(model: getFolderRequest) {
+        return Axios.instance.post<CommonResult<getFolderResponse>>('api/doc/getFolder', model);
+    }
+
     public static deleteFolder(model: deleteFolderRequest) {
         return Axios.instance.post<EmptyCommonResult>('api/doc/deleteFolder', model);
     }
@@ -47,5 +51,14 @@ export interface updateFolderRequest {
 export interface getFolderTreeResponse {
     id: number,
     upId: number | null,
+    name: string
+}
+
+export interface getFolderRequest {
+    folderId: number
+}
+
+export interface getFolderResponse {
+    upId: number,
     name: string
 }
