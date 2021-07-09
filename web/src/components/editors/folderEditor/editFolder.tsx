@@ -1,9 +1,9 @@
 import { Button, Form, Input, Modal, TreeSelect } from "antd";
 import { useState } from "react";
-import { TreeUtil } from "../../common/tree-util";
-import { FolderRequests } from "../../http/requests/folder";
-import { FolderTwoTone, EditOutlined } from '@ant-design/icons';
-import { EventUtil } from "../../common/event";
+import { TreeUtil } from "../../../common/tree-util";
+import { FolderRequests } from "../../../http/requests/folder";
+import { FolderOutlined, EditOutlined } from '@ant-design/icons';
+import { EventUtil } from "../../../common/event";
 
 
 export function EditFolder(props: any) {
@@ -69,7 +69,7 @@ export function EditFolder(props: any) {
         <>
             {props.folderId === undefined ?
                 <div className="file-type-item" onClick={addNewFolder}>
-                    <FolderTwoTone style={{ fontSize: '60px' }} />
+                    <FolderOutlined style={{ fontSize: '60px' }} />
                     <span>文件夹</span>
                 </div>
                 :

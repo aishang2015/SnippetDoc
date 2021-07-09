@@ -1,6 +1,7 @@
-import { FileTwoTone } from '@ant-design/icons';
+import { FileTextOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
-import { EditFolder } from '../modals/editFolder';
+import { EditFolder } from '../editors/folderEditor/editFolder';
+import { RichTextEditor } from '../editors/richTextEditor/richTextEditor';
 
 import './filteTypePanel.less';
 
@@ -23,11 +24,8 @@ export function FileTypePanel(props: {
     return (
         <>
             <div id="grid-container" onClick={() => selected()}>
-                <EditFolder spaceId={selector.spaceId} onClick={() => selected()} />
-                <div className="file-type-item" onClick={() => selected()}>
-                    <FileTwoTone style={{ fontSize: '60px' }} />
-                    <span>富文本文档</span>
-                </div>
+                <EditFolder spaceId={selector.spaceId} />
+                <RichTextEditor spaceId={selector.spaceId} />
             </div>
         </>
     );

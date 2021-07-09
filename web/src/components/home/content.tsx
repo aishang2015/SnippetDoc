@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 import './common.less';
 import { useEffect, useState } from "react";
-import { EditFolder } from "../modals/editFolder";
+import { EditFolder } from "../editors/folderEditor/editFolder";
 import { FolderRequests } from "../../http/requests/folder";
 import { EventUtil } from "../../common/event";
 
