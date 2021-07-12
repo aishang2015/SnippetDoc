@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { EditFolder } from "../editors/folderEditor/editFolder";
 import { FolderRequests } from "../../http/requests/folder";
 import { EventUtil } from "../../common/event";
+import { DocRequests } from "../../http/requests/doc";
+import { RichTextEditor } from "../editors/richTextEditor/richTextEditor";
 
 export function ContentPart(props: any) {
 
@@ -17,12 +19,20 @@ export function ContentPart(props: any) {
     });
 
     useEffect(() => {
-        if (selector.fileId === null) {
-            setDocList([]);
-        } else {
-            setDocList([1, 2, 3, 4, 5]);
-        }
+        initDocList();
     }, [selector.spaceId, selector.fileType, selector.fileId]);
+
+    async function initDocList() {
+        try {
+            let response = await DocRequests.getDocs({
+                spaceId: selector.spaceId,
+                folderId: selector.fileId
+            });
+            setDocList(response.data.data);
+        } catch (e) {
+            console.error(e);
+        }
+    }
 
     async function deleteFolder() {
         Modal.confirm({
@@ -62,12 +72,14 @@ export function ContentPart(props: any) {
                             renderItem={item => {
                                 return (
                                     <List.Item actions={[
-                                        <a key={"list-loadmore-edit" + item}><EditOutlined /></a>,
-                                        <a key={"list-loadmore-delete" + item}><DeleteOutlined /></a>
+                                        <>
+                                            <RichTextEditor fileId={item.id} spaceId={selector.spaceId} ></RichTextEditor>
+                                            <a key={"list-loadmore-delete"}><DeleteOutlined /></a>
+                                        </>
                                     ]}>
                                         <List.Item.Meta
                                             title="1111111111111111111112222222222222233333333333333"
-                                            description={item}
+                                            description="1231"
                                             avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}>
                                         </List.Item.Meta>
                                     </List.Item>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Snippet.Business.Services;
 using Snippet.Constants;
 using Snippet.Core;
@@ -30,24 +31,32 @@ namespace Snippet.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(CommonResult<PagedModel<GetDocsOutputModel>>), 200)]
+        [ProducesResponseType(typeof(CommonResult<GetDocsOutputModel>), 200)]
         public CommonResult GetDocs(GetDocsInputModel model)
         {
-            var query = from d in _snippetDbContext.DocInfos
+            var query = from d in _snippetDbContext.DocInfos.AsNoTracking()
                         where d.SpaceId == model.spaceId &&
                             d.FolderId == model.folderId &&
                             !d.IsDelete
-                        select new GetDocsOutputModel(d.Id, d.Name, d.Content, d.CreateBy,
+                        select new GetDocsOutputModel(d.Id, d.Name, d.CreateBy,
                             d.CreateAt, d.UpdateBy, d.UpdateAt);
 
-            query.AndIfExist(model.name, d => d.Name.Contains(model.name));
+            return this.SuccessCommonResult(query);
+        }
 
-            var result = new PagedModel<GetDocsOutputModel>
+        [HttpPost]
+        [ProducesResponseType(typeof(CommonResult<GetDocOutputModel>), 200)]
+        public CommonResult GetDoc(GetDocInputModel model)
+        {
+            var resultList = (from d in _snippetDbContext.DocInfos.AsNoTracking()
+                              where d.Id == model.id
+                              select new GetDocOutputModel(d.Id, d.FolderId, d.Name, d.Content, d.CreateBy,
+                                  d.CreateAt, d.UpdateBy, d.UpdateAt)).ToList();
+            if (resultList.Count() == 0)
             {
-                Total = query.Count(),
-                PagedData = query.Skip(model.size * (model.page - 1)).Take(model.page)
-            };
-            return this.SuccessCommonResult(result);
+                return this.FailCommonResult(MessageConstant.DOC_ERROR_003);
+            }
+            return this.SuccessCommonResult(resultList.First());
         }
 
         [HttpPost]
@@ -196,8 +205,8 @@ namespace Snippet.Controllers
         [ProducesResponseType(typeof(CommonResult<List<GetFolderTreeOutputModel>>), 200)]
         public CommonResult GetFolderTree(GetFolderTreeInputModel model)
         {
-            var query = from folder in _snippetDbContext.DocFolders
-                        join folderTree in _snippetDbContext.DocFolderTrees.Where(ft => ft.Length == 1)
+            var query = from folder in _snippetDbContext.DocFolders.AsNoTracking()
+                        join folderTree in _snippetDbContext.DocFolderTrees.AsNoTracking().Where(ft => ft.Length == 1)
                             on folder.Id equals folderTree.Descendant into ftGroup
                         from folderTree in ftGroup.DefaultIfEmpty()
                         where folder.SpaceId == model.spaceId
@@ -210,8 +219,8 @@ namespace Snippet.Controllers
         [ProducesResponseType(typeof(CommonResult<GetFolderOutputModel>), 200)]
         public CommonResult GetFolder(GetFolderInputModel model)
         {
-            var query = from folder in _snippetDbContext.DocFolders
-                        join folderTree in _snippetDbContext.DocFolderTrees.Where(ft => ft.Length == 1)
+            var query = from folder in _snippetDbContext.DocFolders.AsNoTracking()
+                        join folderTree in _snippetDbContext.DocFolderTrees.AsNoTracking().Where(ft => ft.Length == 1)
                             on folder.Id equals folderTree.Descendant into ftGroup
                         from folderTree in ftGroup.DefaultIfEmpty()
                         where folder.Id == model.folderId
@@ -317,8 +326,6 @@ namespace Snippet.Controllers
                 }
 
             }
-
-
 
             await _snippetDbContext.SaveChangesAsync();
             return this.SuccessCommonResult(MessageConstant.DOC_INFO_008);

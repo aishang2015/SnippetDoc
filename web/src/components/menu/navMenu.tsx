@@ -59,6 +59,9 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                 spaceList: userSpace.data.data,
                 selectedSpace: spaceId
             });
+
+            // 全局同步
+            this.props.classifyChange(spaceId, 0, null, null);
         } catch (e) {
             console.error(e);
         }
@@ -118,7 +121,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                 </ul>
                 <Modal footer={null} title="请选择" visible={this.state.isFileTypeModalVisible} width={840}
                     onCancel={() => this.selectTypeEnd()} >
-                    <FileTypePanel onSelected={this.selectTypeEnd.bind(this)}/>
+                    <FileTypePanel onSelected={this.selectTypeEnd.bind(this)} />
                 </Modal>
                 <Modal footer={null} title="富文本编辑器" visible={this.state.richTextModalVisible} width={1280}
                     onCancel={() => this.closeRichTextModal()} destroyOnClose={true}>
@@ -166,7 +169,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
         });
     }
 
-    async selectTypeEnd(){
+    async selectTypeEnd() {
         this.setState({
             isFileTypeModalVisible: false
         });
