@@ -14,8 +14,8 @@ namespace Snippet.Entity
         [Comment("文件夹Id")]
         public int? FolderId { get; set; }
 
-        [Comment("名称")]
-        public string Name { get; set; }
+        [Comment("标题")]
+        public string Title { get; set; }
 
         [Comment("内容")]
         public string Content { get; set; }

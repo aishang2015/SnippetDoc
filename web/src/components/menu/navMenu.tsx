@@ -13,6 +13,7 @@ import { TreeUtil } from '../../common/tree-util';
 import { Dispatch } from 'redux';
 import { onClassifyChange } from '../../redux/classify/classifyCreator';
 import { EventUtil } from '../../common/event';
+import { EditFolder } from '../editors/folderEditor/editFolder';
 
 type INavMenuProps = {
     collapsed: boolean;
@@ -127,6 +128,8 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                     onCancel={() => this.closeRichTextModal()} destroyOnClose={true}>
                     <RichTextEditor />
                 </Modal>
+                <RichTextEditor />
+                <EditFolder />
             </div>
         </>
     );

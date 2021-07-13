@@ -4,11 +4,9 @@ import { useSelector } from "react-redux";
 
 import './common.less';
 import { useEffect, useState } from "react";
-import { EditFolder } from "../editors/folderEditor/editFolder";
 import { FolderRequests } from "../../http/requests/folder";
 import { EventUtil } from "../../common/event";
 import { DocRequests } from "../../http/requests/doc";
-import { RichTextEditor } from "../editors/richTextEditor/richTextEditor";
 
 export function ContentPart(props: any) {
 
@@ -49,6 +47,13 @@ export function ContentPart(props: any) {
         })
     }
 
+    function modifyFile(fileId: any, spaceId: any) {
+        EventUtil.Emit("editRichDoc", [fileId, spaceId]);
+    }
+    function modifyFolder(folderId: any, spaceId: any) {
+        EventUtil.Emit("editFolder", [folderId, spaceId]);
+    }
+
     return (
         <>
             <div className="part-container">
@@ -62,7 +67,8 @@ export function ContentPart(props: any) {
 
                         <div className='small-title'>文件夹操作</div>
                         <div>
-                            <EditFolder folderId={selector.fileId} spaceId={selector.spaceId}></EditFolder>
+                            <Button style={{ marginRight: '10px' }} icon={<EditOutlined />}
+                                onClick={() => modifyFolder(selector.fileId, selector.spaceId)}>修改</Button>
                             <Button style={{ marginRight: '10px' }} icon={<DeleteOutlined />} onClick={deleteFolder}>删除</Button>
                         </div>
 
@@ -72,10 +78,9 @@ export function ContentPart(props: any) {
                             renderItem={item => {
                                 return (
                                     <List.Item actions={[
-                                        <>
-                                            <RichTextEditor fileId={item.id} spaceId={selector.spaceId} ></RichTextEditor>
-                                            <a key={"list-loadmore-delete"}><DeleteOutlined /></a>
-                                        </>
+                                        <a key={"list-loadmore-edit"} onClick={() => modifyFile(item.id, selector.spaceId)}><EditOutlined /></a>,
+                                        <a key={"list-loadmore-delete"}><DeleteOutlined /></a>
+
                                     ]}>
                                         <List.Item.Meta
                                             title="1111111111111111111112222222222222233333333333333"

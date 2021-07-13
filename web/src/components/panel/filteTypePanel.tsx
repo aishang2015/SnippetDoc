@@ -1,7 +1,6 @@
-import { FileTextOutlined } from '@ant-design/icons';
+import { FileTextOutlined, FolderOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
-import { EditFolder } from '../editors/folderEditor/editFolder';
-import { RichTextEditor } from '../editors/richTextEditor/richTextEditor';
+import { EventUtil } from '../../common/event';
 
 import './filteTypePanel.less';
 
@@ -21,11 +20,25 @@ export function FileTypePanel(props: {
         }
     }
 
+    function addRichTextFile() {
+        EventUtil.Emit("addRichDoc", [selector.spaceId]);
+    }
+
+    function addNewFolder() {
+        EventUtil.Emit("addFolder", [selector.spaceId]);        
+    }
+
     return (
         <>
             <div id="grid-container" onClick={() => selected()}>
-                <EditFolder spaceId={selector.spaceId} />
-                <RichTextEditor spaceId={selector.spaceId} />
+                <div className="file-type-item" onClick={addNewFolder}>
+                    <FolderOutlined style={{ fontSize: '60px' }} />
+                    <span>文件夹</span>
+                </div>
+                <div className="file-type-item" onClick={addRichTextFile}>
+                    <FileTextOutlined style={{ fontSize: '60px' }} />
+                    <span>富文本文档</span>
+                </div>
             </div>
         </>
     );

@@ -38,7 +38,7 @@ namespace Snippet.Controllers
                         where d.SpaceId == model.spaceId &&
                             d.FolderId == model.folderId &&
                             !d.IsDelete
-                        select new GetDocsOutputModel(d.Id, d.Name, d.CreateBy,
+                        select new GetDocsOutputModel(d.Id, d.Title, d.CreateBy,
                             d.CreateAt, d.UpdateBy, d.UpdateAt);
 
             return this.SuccessCommonResult(query);
@@ -50,7 +50,7 @@ namespace Snippet.Controllers
         {
             var resultList = (from d in _snippetDbContext.DocInfos.AsNoTracking()
                               where d.Id == model.id
-                              select new GetDocOutputModel(d.Id, d.FolderId, d.Name, d.Content, d.CreateBy,
+                              select new GetDocOutputModel(d.Id, d.FolderId, d.Title, d.Content, d.CreateBy,
                                   d.CreateAt, d.UpdateBy, d.UpdateAt)).ToList();
             if (resultList.Count() == 0)
             {
@@ -64,13 +64,15 @@ namespace Snippet.Controllers
         {
             var now = DateTime.Now;
 
-            // 保存文档信息
+            // 开启事务
             using var trans = await _snippetDbContext.Database.BeginTransactionAsync();
+
+            // 保存文档信息
             var entity = await _snippetDbContext.DocInfos.AddAsync(new DocInfo
             {
                 SpaceId = model.spaceId,
                 FolderId = model.folderId,
-                Name = model.name,
+                Title = model.title,
                 Content = model.content,
                 CreateAt = now,
                 CreateBy = _userService.GetUserName(),
@@ -82,10 +84,11 @@ namespace Snippet.Controllers
             await _snippetDbContext.DocHistories.AddAsync(new DocHistory
             {
                 DocInfoId = entity.Entity.Id,
-                Name = model.name,
+                Title = model.title,
                 Content = model.content,
                 RecordAt = now
             });
+            await _snippetDbContext.SaveChangesAsync();
 
             // 提交事务
             await trans.CommitAsync();
@@ -100,7 +103,7 @@ namespace Snippet.Controllers
 
             // 更新内容
             var doc = _snippetDbContext.DocInfos.Find(model.id);
-            doc.Name = model.name;
+            doc.Title = model.title;
             doc.Content = model.content;
             doc.UpdateBy = userName;
             doc.UpdateAt = now;
@@ -117,7 +120,7 @@ namespace Snippet.Controllers
                 await _snippetDbContext.DocHistories.AddAsync(new DocHistory
                 {
                     DocInfoId = doc.Id,
-                    Name = model.name,
+                    Title = model.title,
                     Content = model.content,
                     RecordAt = now
                 });
