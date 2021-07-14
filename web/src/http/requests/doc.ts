@@ -33,6 +33,7 @@ export interface getDocsRequest {
 
 export interface getDocsResponse {
     id: number,
+    docType: number,
     title: string,
     createBy: string,
     createAt: Date,
@@ -48,6 +49,7 @@ export interface getDocRequest {
 export interface getDocContent {
     id: number,
     folderId: number,
+    docType: number,
     title: string,
     content: string,
     createBy: string,
@@ -59,6 +61,7 @@ export interface getDocContent {
 export interface createDocRequest {
     spaceId: number,
     folderId: number,
+    docType: number,
     title: string,
     content: string
 }

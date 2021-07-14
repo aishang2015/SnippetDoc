@@ -9,8 +9,7 @@ export const ClassifyReducer: Reducer<ClassifyState> = (state, action: ClassifyA
         return {
             spaceId: null,
             classify: null,
-            fileType: null,
-            fileId: null
+            folderId: null
         };
     }
 
@@ -19,8 +18,7 @@ export const ClassifyReducer: Reducer<ClassifyState> = (state, action: ClassifyA
             return {
                 spaceId: action.spaceId!,
                 classify: action.classify!,
-                fileType: action.fileType!,
-                fileId: action.fileId!
+                folderId: action.folderId!
             };
         default:
             return state;

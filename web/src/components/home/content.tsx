@@ -1,5 +1,5 @@
-import { Avatar, Button, List, Modal } from "antd";
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button, List, Modal } from "antd";
+import { EditOutlined, DeleteOutlined, FileTextOutlined, HistoryOutlined } from '@ant-design/icons';
 import { useSelector } from "react-redux";
 
 import './common.less';
@@ -7,8 +7,9 @@ import { useEffect, useState } from "react";
 import { FolderRequests } from "../../http/requests/folder";
 import { EventUtil } from "../../common/event";
 import { DocRequests } from "../../http/requests/doc";
+import { dateFormat } from "../../common/time";
 
-export function ContentPart(props: any) {
+export function ContentPart() {
 
     const [docList, setDocList] = useState(new Array<any>());
 
@@ -18,13 +19,14 @@ export function ContentPart(props: any) {
 
     useEffect(() => {
         initDocList();
-    }, [selector.spaceId, selector.fileType, selector.fileId]);
+    }, [selector.spaceId, selector.classify, selector.folderId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // 取得文件夹中的文件列表
     async function initDocList() {
         try {
             let response = await DocRequests.getDocs({
                 spaceId: selector.spaceId,
-                folderId: selector.fileId
+                folderId: selector.folderId
             });
             setDocList(response.data.data);
         } catch (e) {
@@ -38,61 +40,92 @@ export function ContentPart(props: any) {
             content: '是否删除该文件夹？',
             onOk: async () => {
                 try {
-                    await FolderRequests.deleteFolder({ spaceId: selector.spaceId, folderId: selector.fileId });
+                    await FolderRequests.deleteFolder({ spaceId: selector.spaceId, folderId: selector.folderId });
                     EventUtil.EventEmitterInstance().emit('folderDelete', true);
                 } catch (e) {
                     console.error(e);
                 }
             }
-        })
+        });
     }
 
-    function modifyFile(fileId: any, spaceId: any) {
+    function modifyFile(e: any, fileId: any, spaceId: any) {
+        e.stopPropagation();
         EventUtil.Emit("editRichDoc", [fileId, spaceId]);
     }
     function modifyFolder(folderId: any, spaceId: any) {
         EventUtil.Emit("editFolder", [folderId, spaceId]);
     }
 
+    // 浏览文档
+    async function viewDoc(docType: number, fileId: number) {
+        switch (docType) {
+
+            // 浏览富文本
+            case 1:
+                EventUtil.Emit("viewRichDoc", [fileId]);
+        }
+    }
+
+    // 删除文档
+    function deleteDoc(e: any, fileId: any) {
+        e.stopPropagation();
+        Modal.confirm({
+            title: "是否删除文件？",
+            content: "删除后文件会被移入回收站，可以在回收站将其恢复。",
+            onOk: async () => {
+                try {
+                    await DocRequests.deleteDoc({ id: fileId });
+                } catch (e) {
+                    console.error(e);
+                }
+                await initDocList();
+            }
+        });
+    }
+
     return (
         <>
             <div className="part-container">
                 <div className='big-title'>内容</div>
-                {selector.fileType === 1 &&
-                    <>
-                        <div className='small-title'>文件夹信息</div>
-                        <span>文件夹名：gafe</span> &nbsp;&nbsp;&nbsp;&nbsp;
-                        <span>创建日期：2012/12/22 12:12:12</span>&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span>创建人：<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" /></span>&nbsp;&nbsp;&nbsp;&nbsp;
+                <>
+                    {selector.folderId !== null &&
+                        <>
+                            <div className='small-title'>文件夹操作</div>
+                            <div>
+                                <Button style={{ marginRight: '10px' }} icon={<EditOutlined />}
+                                    onClick={() => modifyFolder(selector.folderId, selector.spaceId)}>修改</Button>
+                                <Button style={{ marginRight: '10px' }} icon={<DeleteOutlined />} onClick={deleteFolder}>删除</Button>
+                            </div>
+                        </>
+                    }
 
-                        <div className='small-title'>文件夹操作</div>
-                        <div>
-                            <Button style={{ marginRight: '10px' }} icon={<EditOutlined />}
-                                onClick={() => modifyFolder(selector.fileId, selector.spaceId)}>修改</Button>
-                            <Button style={{ marginRight: '10px' }} icon={<DeleteOutlined />} onClick={deleteFolder}>删除</Button>
-                        </div>
+                    <div className='small-title'>文档列表</div>
 
-                        <div className='small-title'>文档列表</div>
+                    <List dataSource={docList} split={true}
+                        renderItem={item => {
+                            return (
+                                <List.Item style={{ cursor: 'pointer' }} onClick={() => viewDoc(item.docType, item.id)} actions={[
+                                    <a key={"list-edit"} style={{ fontSize: '1.1rem' }} onClick={(e) => modifyFile(e, item.id, selector.spaceId)}><HistoryOutlined /></a>,
+                                    <a key={"list-edit"} style={{ fontSize: '1.1rem' }} onClick={(e) => modifyFile(e, item.id, selector.spaceId)}><EditOutlined /></a>,
+                                    <a key={"list-delete"} style={{ fontSize: '1.1rem' }} onClick={(e) => deleteDoc(e, item.id)}><DeleteOutlined /></a>
 
-                        <List dataSource={docList}
-                            renderItem={item => {
-                                return (
-                                    <List.Item actions={[
-                                        <a key={"list-loadmore-edit"} onClick={() => modifyFile(item.id, selector.spaceId)}><EditOutlined /></a>,
-                                        <a key={"list-loadmore-delete"}><DeleteOutlined /></a>
-
-                                    ]}>
-                                        <List.Item.Meta
-                                            title="1111111111111111111112222222222222233333333333333"
-                                            description="1231"
-                                            avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}>
-                                        </List.Item.Meta>
-                                    </List.Item>
-                                )
-                            }}>
-                        </List>
-                    </>
-                }
+                                ]}>
+                                    <List.Item.Meta
+                                        title={item.title}
+                                        description={
+                                            <>
+                                                <span>{item.createBy}</span>
+                                                <span>{"        "}</span>
+                                                <span>{dateFormat(item.createAt)}</span>
+                                            </>}
+                                        avatar={<FileTextOutlined style={{ fontSize: '40px' }} />}>
+                                    </List.Item.Meta>
+                                </List.Item>
+                            )
+                        }}>
+                    </List>
+                </>
             </div>
         </>
     );

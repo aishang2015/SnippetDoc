@@ -14,6 +14,12 @@ namespace Snippet.Entity
         [Comment("文件夹Id")]
         public int? FolderId { get; set; }
 
+        /// <summary>
+        /// 1:富文本 2:MarkDown 3:代码
+        /// </summary>
+        [Comment("文档类型")]
+        public int DocType { get; set; }
+
         [Comment("标题")]
         public string Title { get; set; }
 

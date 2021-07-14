@@ -38,7 +38,7 @@ export function RichTextEditor() {
             EventUtil.UnSubscribe("editRichDoc", modifyFile);
             EventUtil.UnSubscribe("addRichDoc", addFile);
         };
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // 初始化文件夹树
     async function initFolderData(spaceId: any) {
@@ -100,6 +100,7 @@ export function RichTextEditor() {
                 await DocRequests.createDoc({
                     spaceId: currentSpaceId,
                     folderId: upFolderId,
+                    docType: 1,
                     title: title,
                     content: content
                 });

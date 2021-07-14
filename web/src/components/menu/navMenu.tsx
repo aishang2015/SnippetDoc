@@ -5,7 +5,7 @@ import React, { Key } from "react";
 import { Button, Divider, Modal, Select, Tree } from "antd";
 import { connect } from "react-redux";
 import './navMenu.less';
-import { FileTypePanel } from '../panel/filteTypePanel';
+import { FileTypePanel } from '../editors/selector/filteTypePanel';
 import { RichTextEditor } from '../editors/richTextEditor/richTextEditor';
 import { GetUserSpaceListResult, SpaceRequests } from '../../http/requests/space';
 import { FolderRequests } from '../../http/requests/folder';
@@ -14,6 +14,7 @@ import { Dispatch } from 'redux';
 import { onClassifyChange } from '../../redux/classify/classifyCreator';
 import { EventUtil } from '../../common/event';
 import { EditFolder } from '../editors/folderEditor/editFolder';
+import { RichViewer } from '../viewers/richViewer';
 
 type INavMenuProps = {
     collapsed: boolean;
@@ -62,7 +63,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
             });
 
             // 全局同步
-            this.props.classifyChange(spaceId, 0, null, null);
+            this.props.classifyChange(spaceId, 0, null);
         } catch (e) {
             console.error(e);
         }
@@ -130,6 +131,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                 </Modal>
                 <RichTextEditor />
                 <EditFolder />
+                <RichViewer />
             </div>
         </>
     );
@@ -142,7 +144,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
         });
 
         // 全局同步
-        this.props.classifyChange(this.state.selectedSpace, index, null, null);
+        this.props.classifyChange(this.state.selectedSpace, index, null);
     }
 
     // 选择空间变化
@@ -158,7 +160,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
             });
 
             // 全局同步
-            this.props.classifyChange(value, 0, null, null);
+            this.props.classifyChange(value, 0, null);
         }
         catch (e) {
             console.error(e);
@@ -211,7 +213,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
         });
 
         // 全局同步
-        this.props.classifyChange(this.state.selectedSpace, 1, 1, selectedKeys[0]);
+        this.props.classifyChange(this.state.selectedSpace, 1, selectedKeys[0]);
     }
 }
 
@@ -220,7 +222,7 @@ export default connect(
         collapsed: state.NavCollapsedReducer.collapsed
     }),
     (dispatch: Dispatch) => ({
-        classifyChange: (spaceId: number, classify: number, fileType: number, fileId: number) =>
-            dispatch(onClassifyChange(spaceId, classify, fileType, fileId))
+        classifyChange: (spaceId: number, classify: number, folderId: number) =>
+            dispatch(onClassifyChange(spaceId, classify, folderId))
     })
 )(NavMenu);

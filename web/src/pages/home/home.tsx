@@ -5,6 +5,8 @@ import { getUserInfo } from '../../http/requests/account';
 import { connect } from 'react-redux';
 import { Welcome } from '../../components/nodata/welcome';
 import { ContentPart } from '../../components/home/content';
+import { RecentPart } from '../../components/home/recent';
+import { RecyclePart } from '../../components/home/recycle';
 
 type home = {
     id?: number;
@@ -39,11 +41,11 @@ export class Home extends React.Component<any, home>{
     getDisplayCom(classify: number) {
         switch (classify) {
             case 1:
-                return (<ContentPart/>);
+                return (<ContentPart />);
             case 2:
-                return (<><span className="content-title">最近</span></>);
+                return (<RecentPart />);
             case 3:
-                return (<><span className="content-title">回收站</span></>);
+                return (<RecyclePart />);
         }
         return (<>错误的类型</>);
     }

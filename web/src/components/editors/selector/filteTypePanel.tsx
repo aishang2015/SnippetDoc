@@ -1,6 +1,6 @@
 import { FileTextOutlined, FolderOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
-import { EventUtil } from '../../common/event';
+import { EventUtil } from '../../../common/event';
 
 import './filteTypePanel.less';
 
@@ -25,7 +25,7 @@ export function FileTypePanel(props: {
     }
 
     function addNewFolder() {
-        EventUtil.Emit("addFolder", [selector.spaceId]);        
+        EventUtil.Emit("addFolder", [selector.spaceId]);
     }
 
     return (

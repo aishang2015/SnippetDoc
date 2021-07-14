@@ -2,6 +2,6 @@
 
 namespace Snippet.Models.Doc
 {
-    public record GetDocsOutputModel(int Id, string Title, string CreateBy,
+    public record GetDocsOutputModel(int Id, int DocType, string Title, string CreateBy,
         DateTime CreateAt, string UpdateBy, DateTime? UpdateAt);
 }

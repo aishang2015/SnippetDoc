@@ -2,7 +2,6 @@ import { Button, Form, Input, Modal, TreeSelect } from "antd";
 import { useEffect, useState } from "react";
 import { TreeUtil } from "../../../common/tree-util";
 import { FolderRequests } from "../../../http/requests/folder";
-import { FolderOutlined, EditOutlined } from '@ant-design/icons';
 import { EventUtil } from "../../../common/event";
 
 
@@ -23,11 +22,11 @@ export function EditFolder() {
             EventUtil.UnSubscribe("editFolder", modifyFolder);
             EventUtil.UnSubscribe("addFolder", addNewFolder);
         };
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     async function addNewFolder(params: any) {
         let [spaceId] = params;
-        setCurrentFolderId(spaceId);
+        setCurrentSpaceId(spaceId);
         await initFolderData(spaceId);
         setModalVisible(true);
     }

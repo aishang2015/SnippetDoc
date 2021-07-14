@@ -6,23 +6,23 @@ import { Axios } from "../request";
 export class FolderRequests {
 
     public static createFolder(model: CreateFolderRequest) {
-        return Axios.instance.post<EmptyCommonResult>('api/doc/createFolder', model);
+        return Axios.instance.post<EmptyCommonResult>('api/folder/createFolder', model);
     }
 
     public static getFolderTree(model: getFolderTreeRequest) {
-        return Axios.instance.post<CommonResult<getFolderTreeResponse[]>>('api/doc/getFolderTree', model);
+        return Axios.instance.post<CommonResult<getFolderTreeResponse[]>>('api/folder/getFolderTree', model);
     }
 
     public static getFolder(model: getFolderRequest) {
-        return Axios.instance.post<CommonResult<getFolderResponse>>('api/doc/getFolder', model);
+        return Axios.instance.post<CommonResult<getFolderResponse>>('api/folder/getFolder', model);
     }
 
     public static deleteFolder(model: deleteFolderRequest) {
-        return Axios.instance.post<EmptyCommonResult>('api/doc/deleteFolder', model);
+        return Axios.instance.post<EmptyCommonResult>('api/folder/deleteFolder', model);
     }
 
     public static updateFolder(model: updateFolderRequest) {
-        return Axios.instance.post<EmptyCommonResult>('api/doc/updateFolder', model);
+        return Axios.instance.post<EmptyCommonResult>('api/folder/updateFolder', model);
     }
 }
 
