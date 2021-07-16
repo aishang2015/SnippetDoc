@@ -56,6 +56,10 @@ export function ContentPart() {
     function modifyFolder(folderId: any, spaceId: any) {
         EventUtil.Emit("editFolder", [folderId, spaceId]);
     }
+    function viewHistory(e: any, fileId: any) {
+        e.stopPropagation();
+        EventUtil.Emit("viewHistory", [fileId]);
+    }
 
     // 浏览文档
     async function viewDoc(docType: number, fileId: number) {
@@ -106,9 +110,9 @@ export function ContentPart() {
                         renderItem={item => {
                             return (
                                 <List.Item style={{ cursor: 'pointer' }} onClick={() => viewDoc(item.docType, item.id)} actions={[
-                                    <a key={"list-edit"} style={{ fontSize: '1.1rem' }} onClick={(e) => modifyFile(e, item.id, selector.spaceId)}><HistoryOutlined /></a>,
-                                    <a key={"list-edit"} style={{ fontSize: '1.1rem' }} onClick={(e) => modifyFile(e, item.id, selector.spaceId)}><EditOutlined /></a>,
-                                    <a key={"list-delete"} style={{ fontSize: '1.1rem' }} onClick={(e) => deleteDoc(e, item.id)}><DeleteOutlined /></a>
+                                    <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => viewHistory(e, item.id)}><HistoryOutlined /></a>,
+                                    <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => modifyFile(e, item.id, selector.spaceId)}><EditOutlined /></a>,
+                                    <a key={"list-delete"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => deleteDoc(e, item.id)}><DeleteOutlined /></a>
 
                                 ]}>
                                     <List.Item.Meta

@@ -17,15 +17,15 @@ export function RichViewer() {
         return () => {
             EventUtil.UnSubscribe("viewRichDoc", viewRichDoc);
         };
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // 浏览文档内容
     async function viewRichDoc(params: any) {
-        let [docId] = params;
+        let [docId, historyId] = params;
         try {
             let response = await DocRequests.getDoc({
                 id: docId,
-                historyId: null
+                historyId: historyId
             });
             setDocInfo(response.data.data);
             setVisible(true);
@@ -49,7 +49,7 @@ export function RichViewer() {
                     <span style={{ marginRight: "10px" }}>{dateFormat(docInfo.createAt)}</span>
                     {docInfo.updateBy !== null &&
                         <>
-                            <span style={{ marginRight: "10px" }}>最后修改：{docInfo.updateBy}</span>
+                            <span style={{ marginRight: "10px" }}>修改于：{docInfo.updateBy}</span>
                             <span style={{ marginRight: "10px" }}>{dateFormat(docInfo.updateAt)}</span>
                         </>
                     }

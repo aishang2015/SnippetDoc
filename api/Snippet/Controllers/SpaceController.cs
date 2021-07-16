@@ -95,8 +95,9 @@ namespace Snippet.Controllers
 
             // 查找用户能看到的所有空间
             var result = (from space in _snippetDbContext.Spaces
-                          join spaceMember in _snippetDbContext.SpaceMembers on space.Id equals spaceMember.Id
+                          join spaceMember in _snippetDbContext.SpaceMembers on space.Id equals spaceMember.SpaceId
                           where spaceMember.MemberName == userName
+                          orderby spaceMember.MemberRole
                           select new GetSpaceListOutputModel(space.Id, space.Name, spaceMember.MemberRole)).ToList();
             return this.SuccessCommonResult(result.OrderBy(d => d.role));
         }

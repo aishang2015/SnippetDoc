@@ -19,15 +19,31 @@ namespace Snippet.Core.Data
                 {
                     option = databaseOption.Type switch
                     {
-                        "SQLite" => option.UseSqlite(databaseOption.Connection),
-                        "SQLServer" => option.UseSqlServer(databaseOption.Connection),
+                        "SQLite" => option.UseSqlite(databaseOption.Connection, builder =>
+                        {
+                            builder.UseRelationalNulls();
+                        }),
+                        "SQLServer" => option.UseSqlServer(databaseOption.Connection, builder =>
+                        {
+                            builder.UseRelationalNulls();
+                        }),
 
                         // mysql版本填写具体版本例如8.0.21
-                        "MySQL" => option.UseMySql(databaseOption.Connection, new MySqlServerVersion(new Version(databaseOption.Version))),
-                        "PostgreSQL" => option.UseNpgsql(databaseOption.Connection),
+                        "MySQL" => option.UseMySql(databaseOption.Connection, new MySqlServerVersion(new Version(databaseOption.Version)), builder =>
+                        {
+                            builder.UseRelationalNulls();
+                        }),
+                        "PostgreSQL" => option.UseNpgsql(databaseOption.Connection, builder =>
+                        {
+                            builder.UseRelationalNulls();
+                        }),
 
                         // oracle版本11或12
-                        "Oracle" => option.UseOracle(databaseOption.Connection, b => b.UseOracleSQLCompatibility(databaseOption.Version)),
+                        "Oracle" => option.UseOracle(databaseOption.Connection, builder =>
+                        {
+                            builder.UseOracleSQLCompatibility(databaseOption.Version);
+                            builder.UseRelationalNulls();
+                        }),
                         _ => option
                     };
                 }).AddIdentity<SnippetUser, SnippetRole>(option =>
@@ -57,15 +73,31 @@ namespace Snippet.Core.Data
                 {
                     option = databaseOption.Type switch
                     {
-                        "SQLite" => option.UseSqlite(databaseOption.Connection),
-                        "SQLServer" => option.UseSqlServer(databaseOption.Connection),
+                        "SQLite" => option.UseSqlite(databaseOption.Connection, builder =>
+                        {
+                            builder.UseRelationalNulls();
+                        }),
+                        "SQLServer" => option.UseSqlServer(databaseOption.Connection, builder =>
+                        {
+                            builder.UseRelationalNulls();
+                        }),
 
                         // mysql版本填写具体版本例如8.0.21
-                        "MySQL" => option.UseMySql(databaseOption.Connection, new MySqlServerVersion(new Version(databaseOption.Version))),
-                        "PostgreSQL" => option.UseNpgsql(databaseOption.Connection),
+                        "MySQL" => option.UseMySql(databaseOption.Connection, new MySqlServerVersion(new Version(databaseOption.Version)), builder =>
+                        {
+                            builder.UseRelationalNulls();
+                        }),
+                        "PostgreSQL" => option.UseNpgsql(databaseOption.Connection, builder =>
+                        {
+                            builder.UseRelationalNulls();
+                        }),
 
                         // oracle版本11或12
-                        "Oracle" => option.UseOracle(databaseOption.Connection, b => b.UseOracleSQLCompatibility(databaseOption.Version)),
+                        "Oracle" => option.UseOracle(databaseOption.Connection, builder =>
+                        {
+                            builder.UseOracleSQLCompatibility(databaseOption.Version);
+                            builder.UseRelationalNulls();
+                        }),
                         _ => option
                     };
                 });

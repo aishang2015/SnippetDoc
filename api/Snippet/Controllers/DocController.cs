@@ -46,10 +46,18 @@ namespace Snippet.Controllers
         [ProducesResponseType(typeof(CommonResult<GetDocOutputModel>), 200)]
         public CommonResult GetDoc(GetDocInputModel model)
         {
-            var resultList = (from d in _snippetDbContext.DocInfos.AsNoTracking()
-                              where d.Id == model.id
-                              select new GetDocOutputModel(d.Id, d.FolderId, d.DocType, d.Title, d.Content, d.CreateBy,
-                                  d.CreateAt, d.UpdateBy, d.UpdateAt)).ToList();
+            // 获取文档内容或历史版本内容
+            var resultList = model.historyId == null ?
+                (from d in _snippetDbContext.DocInfos.AsNoTracking()
+                 where d.Id == model.id
+                 select new GetDocOutputModel(d.Id, d.FolderId, d.DocType, d.Title, d.Content, d.CreateBy,
+                     d.CreateAt, d.UpdateBy, d.UpdateAt)).ToList()
+                                  :
+                (from d in _snippetDbContext.DocInfos.AsNoTracking()
+                 join h in _snippetDbContext.DocHistories.AsNoTracking() on d.Id equals h.DocInfoId
+                 where d.Id == model.id && h.Id == model.historyId
+                 select new GetDocOutputModel(d.Id, d.FolderId, d.DocType, h.Title, h.Content, d.CreateBy,
+                     d.CreateAt, h.OperateBy, h.OperateAt)).ToList();
             if (resultList.Count() == 0)
             {
                 return this.FailCommonResult(MessageConstant.DOC_ERROR_001);
@@ -61,6 +69,7 @@ namespace Snippet.Controllers
         public async Task<CommonResult> CreateDoc(CreateDocInputModel model)
         {
             var now = DateTime.Now;
+            var userName = _userService.GetUserName();
 
             // 开启事务
             using var trans = await _snippetDbContext.Database.BeginTransactionAsync();
@@ -74,7 +83,7 @@ namespace Snippet.Controllers
                 Title = model.title,
                 Content = model.content,
                 CreateAt = now,
-                CreateBy = _userService.GetUserName(),
+                CreateBy = userName,
                 IsDelete = false
             });
             await _snippetDbContext.SaveChangesAsync();
@@ -85,7 +94,8 @@ namespace Snippet.Controllers
                 DocInfoId = entity.Entity.Id,
                 Title = model.title,
                 Content = model.content,
-                RecordAt = now
+                OperateAt = now,
+                OperateBy = userName,
             });
             await _snippetDbContext.SaveChangesAsync();
 
@@ -110,18 +120,20 @@ namespace Snippet.Controllers
             // 取得最新一次的记录
             var latestHistory = (from h in _snippetDbContext.DocHistories
                                  where h.DocInfoId == model.id
-                                 orderby h.RecordAt descending
+                                 orderby h.OperateAt descending
                                  select h).First();
 
-            // 如果上一次修改时间距现在超过30分钟后，则会生成新的历史记录
-            if (latestHistory.RecordAt.AddMinutes(30) < now)
+            // 如果上一次修改时间距现在超过10分钟后，或其他人修改此文档时则会生成新的历史记录
+            if (latestHistory.OperateAt.AddMinutes(10) < now ||
+                latestHistory.OperateBy != userName)
             {
                 await _snippetDbContext.DocHistories.AddAsync(new DocHistory
                 {
                     DocInfoId = doc.Id,
                     Title = model.title,
                     Content = model.content,
-                    RecordAt = now
+                    OperateAt = now,
+                    OperateBy = userName
                 });
             }
 
@@ -137,6 +149,25 @@ namespace Snippet.Controllers
             doc.IsDelete = true;
             await _snippetDbContext.SaveChangesAsync();
             return this.SuccessCommonResult(MessageConstant.DOC_INFO_003);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(CommonResult<PagedModel<GetDocHistoriesOutputModel>>), 200)]
+        public CommonResult GetDocHistories(GetDocHistoriesInputModel model)
+        {
+            var query = from his in _snippetDbContext.DocHistories
+                        where his.DocInfoId == model.docId
+                        orderby his.OperateAt descending
+                        select new GetDocHistoriesOutputModel(his.Id, his.OperateAt, his.OperateBy);
+
+            var take = model.size;
+            var skip = model.size * (model.page - 1);
+
+            return this.SuccessCommonResult(new PagedModel<GetDocHistoriesOutputModel>
+            {
+                Total = query.Count(),
+                PagedData = query.Skip(skip).Take(take)
+            });
         }
     }
 }

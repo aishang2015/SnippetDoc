@@ -104,6 +104,7 @@ export function RichTextEditor() {
                     title: title,
                     content: content
                 });
+                setEditVisible(false);
             } else {
 
                 // 更新文档
@@ -114,7 +115,6 @@ export function RichTextEditor() {
                 });
 
             }
-            setEditVisible(false);
         }
         catch (e) {
             console.error(e);

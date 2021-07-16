@@ -76,8 +76,8 @@ export function RecyclePart() {
                     renderItem={item => {
                         return (
                             <List.Item actions={[
-                                <a key={"list-delete"} style={{ fontSize: '1.1rem' }} onClick={() => revertDoc(item.id)}><RollbackOutlined /></a>,
-                                <a key={"list-delete"} style={{ fontSize: '1.1rem' }} onClick={() => deleteDoc(item.id)}><DeleteOutlined /></a>
+                                <a key={"list-delete"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={() => revertDoc(item.id)}><RollbackOutlined /></a>,
+                                <a key={"list-delete"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={() => deleteDoc(item.id)}><DeleteOutlined /></a>
                             ]}>
                                 <List.Item.Meta
                                     title={

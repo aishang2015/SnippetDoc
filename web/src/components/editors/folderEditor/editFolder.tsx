@@ -22,7 +22,7 @@ export function EditFolder() {
             EventUtil.UnSubscribe("editFolder", modifyFolder);
             EventUtil.UnSubscribe("addFolder", addNewFolder);
         };
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
     async function addNewFolder(params: any) {
         let [spaceId] = params;

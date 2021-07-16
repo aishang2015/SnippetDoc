@@ -76,7 +76,10 @@ namespace Snippet.Controllers
             var user = new SnippetUser
             {
                 UserName = inputModel.userName,
-                IsActive = inputModel.isActive
+                IsActive = inputModel.isActive,
+                IsDeleted = false,
+                AvatarColor = "#f5222d",
+                AvatarText = inputModel.userName.Substring(0, 1)
             };
             await _userManager.CreateAsync(user);
             await _userManager.AddToRoleAsync(user, CommonConstant.RoleDic[inputModel.role]);

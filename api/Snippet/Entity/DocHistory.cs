@@ -16,7 +16,10 @@ namespace Snippet.Entity
         [Comment("内容")]
         public string Content { get; set; }
 
-        [Comment("记录时间")]
-        public DateTime RecordAt { get; set; }
+        [Comment("操作时间")]
+        public DateTime OperateAt { get; set; }
+
+        [Comment("操作人")]
+        public string OperateBy { get; set; }
     }
 }

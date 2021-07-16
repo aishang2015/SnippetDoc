@@ -15,6 +15,7 @@ import { onClassifyChange } from '../../redux/classify/classifyCreator';
 import { EventUtil } from '../../common/event';
 import { EditFolder } from '../editors/folderEditor/editFolder';
 import { RichViewer } from '../viewers/richViewer';
+import { HistoryViewer } from '../viewers/historyViewer';
 
 type INavMenuProps = {
     collapsed: boolean;
@@ -132,6 +133,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                 <RichTextEditor />
                 <EditFolder />
                 <RichViewer />
+                <HistoryViewer />
             </div>
         </>
     );

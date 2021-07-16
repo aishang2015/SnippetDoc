@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using Serilog.Filters;
+using Snippet.Business.Services;
 using Snippet.Core.Data;
 using System;
 using System.IO;
@@ -20,6 +22,7 @@ namespace Snippet
                 Log.Information("Server start Runing!");
                 var builder = CreateHostBuilder(args).Build();
                 builder.InitialDatabase();
+                InitUserCache(builder);
                 builder.Run();
             }
             catch (Exception e)
@@ -87,5 +90,17 @@ namespace Snippet
                                config.Filter.ByIncludingOnly(Matching.FromSource("Serilog.AspNetCore"));
                            });
                 });
+
+        private static void InitUserCache(IHost host)
+        {
+            using (var serviceScope = host.Services.CreateScope())
+            {
+                var services = serviceScope.ServiceProvider;
+
+                var userService = services.GetRequiredService<IUserService>();
+
+                userService.LoadUserCache();
+            }
+        }
     }
 }

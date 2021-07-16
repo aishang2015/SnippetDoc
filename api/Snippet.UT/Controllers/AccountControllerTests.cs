@@ -57,7 +57,7 @@ namespace Snippet.UT.Controllers
                 .Returns(new JwtOption { ExpireSpan = 20 });
 
             var controller = new AccountController(_mockUserManager.Object, null, _mockJwtFactory.Object,
-                null, null, _mockJwtOption.Object);
+                null, null, null, _mockJwtOption.Object);
 
             var result = (CommonResult<LoginOutputModel>)
                 await controller.Login(new LoginInputModel("TestUser1", "TestUser1"));
@@ -81,7 +81,7 @@ namespace Snippet.UT.Controllers
                 .ReturnsAsync(false);
 
             var controller = new AccountController(_mockUserManager.Object, null, _mockJwtFactory.Object,
-                null, null, _mockJwtOption.Object);
+                null, null, null, _mockJwtOption.Object);
 
             var result = await controller.Login(new LoginInputModel("TestUser1", "TestUser1"));
 
@@ -100,7 +100,7 @@ namespace Snippet.UT.Controllers
                 .ReturnsAsync(() => null);
 
             var controller = new AccountController(_mockUserManager.Object, null, _mockJwtFactory.Object,
-                null, null, _mockJwtOption.Object);
+                null, null, null, _mockJwtOption.Object);
 
             var result = await controller.Login(new LoginInputModel("TestUser1", "TestUser1"));
 

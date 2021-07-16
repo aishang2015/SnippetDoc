@@ -4,6 +4,8 @@ using System;
 namespace Snippet.Entity
 {
     [Comment("文档信息")]
+    [Index(nameof(SpaceId))]
+    [Index(nameof(FolderId))]
     public class DocInfo
     {
         public int Id { get; set; }
