@@ -42,7 +42,11 @@ export interface getDocsResponse {
     createBy: string,
     createAt: Date,
     updateBy: string,
-    updateAt: Date
+    updateAt: Date,    
+    creatorAvatarColor: string,
+    creatorAvatarText: string,
+    updatePersonAvatarColor: string,
+    updatePersonAvatarText: string
 }
 
 export interface getDocRequest {
@@ -59,7 +63,18 @@ export interface getDocContent {
     createBy: string,
     createAt: Date,
     updateBy: string,
-    updateAt: Date
+    updateAt: Date,
+    creatorAvatarColor: string,
+    creatorAvatarText: string,
+    updatePersonAvatarColor: string,
+    updatePersonAvatarText: string,
+    docModifyUsers: [
+      {
+        userName: string,
+        avatarColor: string,
+        avatarText: string
+      }
+    ]
 }
 
 export interface createDocRequest {

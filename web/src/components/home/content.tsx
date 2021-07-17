@@ -1,4 +1,4 @@
-import { Button, List, Modal } from "antd";
+import { Avatar, Button, List, Modal, Tooltip } from "antd";
 import { EditOutlined, DeleteOutlined, FileTextOutlined, HistoryOutlined } from '@ant-design/icons';
 import { useSelector } from "react-redux";
 
@@ -8,6 +8,7 @@ import { FolderRequests } from "../../http/requests/folder";
 import { EventUtil } from "../../common/event";
 import { DocRequests } from "../../http/requests/doc";
 import { dateFormat } from "../../common/time";
+import { UserDate } from "../common/userDate";
 
 export function ContentPart() {
 
@@ -119,9 +120,18 @@ export function ContentPart() {
                                         title={item.title}
                                         description={
                                             <>
-                                                <span>{item.createBy}</span>
-                                                <span>{"        "}</span>
-                                                <span>{dateFormat(item.createAt)}</span>
+                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                    <span>作者：</span>
+                                                    <UserDate userName={item.createBy} avatarColor={item.creatorAvatarColor}
+                                                        avatarText={item.creatorAvatarText} operateAt={item.createAt} />
+                                                    {item.updateBy !== null &&
+                                                        <>
+                                                            <span style={{ marginLeft: '20px' }}>最近更新：</span>
+                                                            <UserDate userName={item.updateBy} avatarColor={item.updatePersonAvatarColor}
+                                                                avatarText={item.updatePersonAvatarText} operateAt={item.updateAt} />
+                                                        </>
+                                                    }
+                                                </div>
                                             </>}
                                         avatar={<FileTextOutlined style={{ fontSize: '40px' }} />}>
                                     </List.Item.Meta>

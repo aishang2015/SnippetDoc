@@ -3,6 +3,7 @@ using System;
 
 namespace Snippet.Entity
 {
+    [Index(nameof(DocInfoId))]
     public class DocHistory
     {
         public int Id { get; set; }

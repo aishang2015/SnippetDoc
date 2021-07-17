@@ -8,6 +8,7 @@ using Snippet.Entity;
 using Snippet.Models;
 using Snippet.Models.Doc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -32,14 +33,22 @@ namespace Snippet.Controllers
         [ProducesResponseType(typeof(CommonResult<GetDocsOutputModel>), 200)]
         public CommonResult GetDocs(GetDocsInputModel model)
         {
-            var query = from d in _snippetDbContext.DocInfos.AsNoTracking()
-                        where d.SpaceId == model.spaceId &&
-                            d.FolderId == model.folderId &&
-                            !d.IsDelete
-                        select new GetDocsOutputModel(d.Id, d.DocType, d.Title, d.CreateBy,
-                            d.CreateAt, d.UpdateBy, d.UpdateAt);
+            var resultList = (from d in _snippetDbContext.DocInfos.AsNoTracking()
+                              where d.SpaceId == model.spaceId &&
+                                  d.FolderId == model.folderId &&
+                                  !d.IsDelete
+                              select new GetDocsOutputModel(d.Id, d.DocType, d.Title, d.CreateBy,
+                                  d.CreateAt, d.UpdateBy, d.UpdateAt)).ToList();
 
-            return this.SuccessCommonResult(query);
+            resultList.ForEach(r =>
+            {
+                r.CreatorAvatarColor = _userService.GetCacheUserValue(r.CreateBy, UseInfoType.AvatarColor);
+                r.CreatorAvatarText = _userService.GetCacheUserValue(r.CreateBy, UseInfoType.AvatarText);
+                r.UpdatePersonAvatarColor = _userService.GetCacheUserValue(r.UpdateBy, UseInfoType.AvatarColor);
+                r.UpdatePersonAvatarText = _userService.GetCacheUserValue(r.UpdateBy, UseInfoType.AvatarText);
+            });
+
+            return this.SuccessCommonResult(resultList);
         }
 
         [HttpPost]
@@ -62,7 +71,29 @@ namespace Snippet.Controllers
             {
                 return this.FailCommonResult(MessageConstant.DOC_ERROR_001);
             }
-            return this.SuccessCommonResult(resultList.First());
+
+            var doc = resultList.First();
+            doc.CreatorAvatarColor = _userService.GetCacheUserValue(doc.CreateBy, UseInfoType.AvatarColor);
+            doc.CreatorAvatarText = _userService.GetCacheUserValue(doc.CreateBy, UseInfoType.AvatarText);
+            doc.UpdatePersonAvatarColor = _userService.GetCacheUserValue(doc.UpdateBy, UseInfoType.AvatarColor);
+            doc.UpdatePersonAvatarText = _userService.GetCacheUserValue(doc.UpdateBy, UseInfoType.AvatarText);
+
+            // 查找所有修改该文档的用户,并取得头像信息
+            var modifyUsers = (from h in _snippetDbContext.DocHistories
+                               where h.DocInfoId == model.id
+                               select h.OperateBy).Distinct().ToList();
+            doc.DocModifyUsers = new List<DocModifyUser>();
+            modifyUsers.ForEach(userName =>
+            {
+                doc.DocModifyUsers.Add(new DocModifyUser
+                {
+                    UserName = userName,
+                    AvatarColor = _userService.GetCacheUserValue(userName, UseInfoType.AvatarColor),
+                    AvatarText = _userService.GetCacheUserValue(userName, UseInfoType.AvatarText)
+                });
+            });
+
+            return this.SuccessCommonResult(doc);
         }
 
         [HttpPost]

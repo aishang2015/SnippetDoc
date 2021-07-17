@@ -3,7 +3,7 @@ import './home.less';
 import React from "react";
 import { getUserInfo } from '../../http/requests/account';
 import { connect } from 'react-redux';
-import { Welcome } from '../../components/nodata/welcome';
+import { Welcome } from '../../components/common/welcome';
 import { ContentPart } from '../../components/home/content';
 import { RecentPart } from '../../components/home/recent';
 import { RecyclePart } from '../../components/home/recycle';

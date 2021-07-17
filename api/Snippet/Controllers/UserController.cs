@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Snippet.Business.Services;
 using Snippet.Constants;
 using Snippet.Core.Data;
 using Snippet.Entity;
@@ -20,11 +21,15 @@ namespace Snippet.Controllers
 
         private readonly UserManager<SnippetUser> _userManager;
 
+        private readonly IUserService _userService;
+
         public UserController(SnippetDbContext snippetDbContext,
-            UserManager<SnippetUser> userManager)
+            UserManager<SnippetUser> userManager,
+            IUserService userService)
         {
             _snippetDbContext = snippetDbContext;
             _userManager = userManager;
+            _userService = userService;
         }
 
         /// <summary>
@@ -84,6 +89,9 @@ namespace Snippet.Controllers
             await _userManager.CreateAsync(user);
             await _userManager.AddToRoleAsync(user, CommonConstant.RoleDic[inputModel.role]);
 
+            // 更新用户缓存信息
+            _userService.UpdateUserCache(user);
+
             return this.SuccessCommonResult(MessageConstant.USER_INFO_0001);
         }
 
@@ -123,6 +131,9 @@ namespace Snippet.Controllers
                 return this.FailCommonResult(MessageConstant.USER_ERROR_0005);
             }
             await trans.CommitAsync();
+
+            // 更新用户缓存信息
+            _userService.UpdateUserCache(user);
 
             return this.SuccessCommonResult(MessageConstant.USER_INFO_0002);
         }

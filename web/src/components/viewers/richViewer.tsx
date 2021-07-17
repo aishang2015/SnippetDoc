@@ -1,8 +1,9 @@
 import Modal from "antd/lib/modal/Modal";
 import { useEffect, useState } from "react";
 import { EventUtil } from "../../common/event";
-import { dateFormat } from "../../common/time";
 import { DocRequests } from "../../http/requests/doc";
+import { UserDate } from "../common/userDate";
+import { UserGroup } from "../common/userGroup";
 
 
 export function RichViewer() {
@@ -43,14 +44,19 @@ export function RichViewer() {
         <>
             <Modal visible={visible} width={1000} onCancel={closeView} footer={null}>
                 <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{docInfo.title}</div>
-                <div style={{ color: "gray", margin: '10px 0' }}>
+                <div style={{ color: "gray", margin: '10px 0', display: 'flex', alignItems: 'center' }} >
 
-                    <span style={{ marginRight: "10px" }}>作者：{docInfo.createBy}</span>
-                    <span style={{ marginRight: "10px" }}>{dateFormat(docInfo.createAt)}</span>
+                    <span>作者：</span>
+                    <UserDate userName={docInfo.createBy} avatarColor={docInfo.creatorAvatarColor}
+                        avatarText={docInfo.creatorAvatarText} operateAt={docInfo.createAt} />
                     {docInfo.updateBy !== null &&
                         <>
-                            <span style={{ marginRight: "10px" }}>修改于：{docInfo.updateBy}</span>
-                            <span style={{ marginRight: "10px" }}>{dateFormat(docInfo.updateAt)}</span>
+                            <span style={{ marginLeft: "20px" }}>最近更新：</span>
+                            <UserDate userName={docInfo.updateBy} avatarColor={docInfo.updatePersonAvatarColor}
+                                avatarText={docInfo.updatePersonAvatarText} operateAt={docInfo.updateAt} />
+                            <span style={{ marginLeft: "20px" }}>贡献者：</span>
+                            <UserGroup group={docInfo.docModifyUsers}></UserGroup>
+
                         </>
                     }
                 </div>

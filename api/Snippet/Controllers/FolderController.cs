@@ -191,7 +191,6 @@ namespace Snippet.Controllers
                         });
                     }
                 }
-
             }
 
             await _snippetDbContext.SaveChangesAsync();

@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 
 namespace Snippet.Business.Services
 {
-
     public enum UseInfoType
     {
         AvatarColor,

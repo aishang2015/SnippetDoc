@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
+using Snippet.Business.Services;
 using Snippet.Constants;
 using Snippet.Core;
 using Snippet.Core.Authentication;
@@ -39,6 +40,8 @@ namespace Snippet.Controllers
 
         private readonly JwtOption _jwtOption;
 
+        private readonly IUserService _userService;
+
         public AccountController(
             UserManager<SnippetUser> userManager,
             OauthHelper oauthHttpClient,
@@ -46,7 +49,8 @@ namespace Snippet.Controllers
             IMapper mapper,
             IDistributedCache cache,
             SnippetDbContext snippetDbContext,
-            IOptions<JwtOption> options)
+            IOptions<JwtOption> options,
+            IUserService userService)
         {
             _userManager = userManager;
             _oauthHelper = oauthHttpClient;
@@ -55,6 +59,7 @@ namespace Snippet.Controllers
             _cache = cache;
             _snippetDbContext = snippetDbContext;
             _jwtOption = options.Value;
+            _userService = userService;
         }
 
         /// <summary>
@@ -115,6 +120,10 @@ namespace Snippet.Controllers
             user.AvatarColor = inputModel.avatarColor;
             user.AvatarText = inputModel.avatarText;
             await _userManager.UpdateAsync(user);
+
+            // 更新用户缓存信息
+            _userService.UpdateUserCache(user);
+
             return this.SuccessCommonResult(MessageConstant.ACCOUNT_INFO_0003);
         }
 
