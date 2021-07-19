@@ -24,6 +24,10 @@ export class SpaceRequests {
         return Axios.instance.post<CommonResult<GetManageSpaceListResult[]>>('api/space/getManageSpaceList', null);
     }
 
+    public static getUserManageSpaceList(){
+        return Axios.instance.post<CommonResult<GetManageSpaceListResult[]>>('api/space/getUserManageSpaceList', null);
+    }
+
     public static getSpaceMemberList(model: GetSpaceMemberListModel) {
         return Axios.instance.post<CommonResult<GetSpaceMemberResult>>('api/space/getSpaceMemberList', model);
     }

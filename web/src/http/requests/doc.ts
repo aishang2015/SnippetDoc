@@ -17,6 +17,10 @@ export class DocRequests {
         return Axios.instance.post<EmptyCommonResult>('api/doc/createDoc', model);
     }
 
+    public static copyDoc(model: copyDocRequest) {
+        return Axios.instance.post<EmptyCommonResult>('api/doc/copyDoc', model);
+    }
+
     public static updateDoc(model: updateDocRequest) {
         return Axios.instance.post<EmptyCommonResult>('api/doc/updateDoc', model);
     }
@@ -42,7 +46,7 @@ export interface getDocsResponse {
     createBy: string,
     createAt: Date,
     updateBy: string,
-    updateAt: Date,    
+    updateAt: Date,
     creatorAvatarColor: string,
     creatorAvatarText: string,
     updatePersonAvatarColor: string,
@@ -69,11 +73,11 @@ export interface getDocContent {
     updatePersonAvatarColor: string,
     updatePersonAvatarText: string,
     docModifyUsers: [
-      {
-        userName: string,
-        avatarColor: string,
-        avatarText: string
-      }
+        {
+            userName: string,
+            avatarColor: string,
+            avatarText: string
+        }
     ]
 }
 
@@ -83,6 +87,12 @@ export interface createDocRequest {
     docType: number,
     title: string,
     content: string
+}
+
+export interface copyDocRequest {
+    spaceId: number,
+    folderId: number,
+    docId: number
 }
 
 export interface updateDocRequest {

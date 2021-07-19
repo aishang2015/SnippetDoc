@@ -1,5 +1,5 @@
-import { Avatar, Button, List, Modal, Tooltip } from "antd";
-import { EditOutlined, DeleteOutlined, FileTextOutlined, HistoryOutlined } from '@ant-design/icons';
+import { Button, List, Modal } from "antd";
+import { EditOutlined, DeleteOutlined, FileTextOutlined, HistoryOutlined, DownloadOutlined, CopyOutlined } from '@ant-design/icons';
 import { useSelector } from "react-redux";
 
 import './common.less';
@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { FolderRequests } from "../../http/requests/folder";
 import { EventUtil } from "../../common/event";
 import { DocRequests } from "../../http/requests/doc";
-import { dateFormat } from "../../common/time";
 import { UserDate } from "../common/userDate";
 
 export function ContentPart() {
@@ -62,6 +61,12 @@ export function ContentPart() {
         EventUtil.Emit("viewHistory", [fileId]);
     }
 
+    // 复制文档
+    function copyDoc(e: any, docId: any) {
+        e.stopPropagation();
+        EventUtil.Emit("copyFile", [docId]);
+    }
+
     // 浏览文档
     async function viewDoc(docType: number, fileId: number) {
         switch (docType) {
@@ -111,6 +116,7 @@ export function ContentPart() {
                         renderItem={item => {
                             return (
                                 <List.Item style={{ cursor: 'pointer' }} onClick={() => viewDoc(item.docType, item.id)} actions={[
+                                    <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => copyDoc(e, item.id)}><CopyOutlined /></a>,
                                     <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => viewHistory(e, item.id)}><HistoryOutlined /></a>,
                                     <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => modifyFile(e, item.id, selector.spaceId)}><EditOutlined /></a>,
                                     <a key={"list-delete"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => deleteDoc(e, item.id)}><DeleteOutlined /></a>

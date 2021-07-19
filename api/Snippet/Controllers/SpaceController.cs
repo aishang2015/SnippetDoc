@@ -103,7 +103,24 @@ namespace Snippet.Controllers
         }
 
         /// <summary>
-        /// 取得管理空间列表
+        /// 获取自己能进行编辑的的空间列表
+        /// </summary>
+        [HttpPost]
+        public CommonResult GetUserManageSpaceList()
+        {
+            var userName = _userService.GetUserName();
+
+            // 查找用户能看到的所有空间
+            var result = (from space in _snippetDbContext.Spaces
+                          join spaceMember in _snippetDbContext.SpaceMembers on space.Id equals spaceMember.SpaceId
+                          where spaceMember.MemberName == userName && spaceMember.MemberRole != 3
+                          orderby spaceMember.MemberRole
+                          select new GetSpaceListOutputModel(space.Id, space.Name, spaceMember.MemberRole)).ToList();
+            return this.SuccessCommonResult(result.OrderBy(d => d.role));
+        }
+
+        /// <summary>
+        /// 管理界面-取得全部公开空间
         /// </summary>
         [HttpPost]
         public async Task<CommonResult> GetManageSpaceList()

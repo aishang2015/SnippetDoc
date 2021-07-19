@@ -60,6 +60,7 @@
         public static readonly (string, string) DOC_INFO_001 = ("DOC_INFO_001", "文档创建成功！");
         public static readonly (string, string) DOC_INFO_002 = ("DOC_INFO_002", "文档更新成功！");
         public static readonly (string, string) DOC_INFO_003 = ("DOC_INFO_003", "已放入回收站！");
+        public static readonly (string, string) DOC_INFO_004 = ("DOC_INFO_004", "文件复制成功！");
 
         public static readonly (string, string) DOC_ERROR_001 = ("DOC_ERROR_001", "没有找到该文档的信息，请确认是否被删除！");
 

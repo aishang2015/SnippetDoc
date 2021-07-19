@@ -136,6 +136,48 @@ namespace Snippet.Controllers
         }
 
         [HttpPost]
+        public async Task<CommonResult> CopyDoc(CopyDocInputModel model)
+        {
+            var now = DateTime.Now;
+            var userName = _userService.GetUserName();
+
+            // 开启事务
+            using var trans = await _snippetDbContext.Database.BeginTransactionAsync();
+
+            var origionalDoc = _snippetDbContext.DocInfos.AsNoTrackingWithIdentityResolution()
+                .FirstOrDefault(d => d.Id == model.docId);
+
+            origionalDoc.Id = default(int);
+            origionalDoc.SpaceId = model.spaceId;
+            origionalDoc.FolderId = model.folderId;
+            origionalDoc.Title = origionalDoc.Title + CommonConstant.CopyDocTitle;
+            origionalDoc.CreateBy = userName;
+            origionalDoc.CreateAt = now;
+            origionalDoc.UpdateBy = null;
+            origionalDoc.UpdateAt = null;
+
+            // 保存文档信息
+            var entity = await _snippetDbContext.DocInfos.AddAsync(origionalDoc);
+            await _snippetDbContext.SaveChangesAsync();
+
+            // 保存文档历史
+            await _snippetDbContext.DocHistories.AddAsync(new DocHistory
+            {
+                DocInfoId = entity.Entity.Id,
+                Title = origionalDoc.Title,
+                Content = origionalDoc.Content,
+                OperateAt = now,
+                OperateBy = userName,
+            });
+            await _snippetDbContext.SaveChangesAsync();
+
+            // 提交事务
+            await trans.CommitAsync();
+
+            return this.SuccessCommonResult(MessageConstant.DOC_INFO_004);
+        }
+
+        [HttpPost]
         public async Task<CommonResult> UpdateDoc(UpdateDocInputModel model)
         {
             var userName = _userService.GetUserName();

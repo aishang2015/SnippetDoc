@@ -26,5 +26,7 @@ namespace Snippet.Constants
             {2,"编辑者" },
             {3,"观察者" }
         };
+
+        public const string CopyDocTitle = "-副本";
     }
 }

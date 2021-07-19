@@ -1,5 +1,5 @@
 import {
-    SettingOutlined, PlusOutlined, FileTextOutlined, FieldTimeOutlined, DeleteOutlined
+    PlusOutlined, FileTextOutlined, FieldTimeOutlined, DeleteOutlined
 } from '@ant-design/icons';
 import React, { Key } from "react";
 import { Button, Divider, Modal, Select, Tree } from "antd";
@@ -16,6 +16,8 @@ import { EventUtil } from '../../common/event';
 import { EditFolder } from '../editors/folderEditor/editFolder';
 import { RichViewer } from '../viewers/richViewer';
 import { HistoryViewer } from '../viewers/historyViewer';
+import { SpaceMember } from '../setting/space-member';
+import { CopyEditor } from '../editors/copyEditor/copyEditor';
 
 type INavMenuProps = {
     collapsed: boolean;
@@ -85,14 +87,16 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                 textAlign: "center", padding: '10px', height: '100%',
                 display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly',
                 borderTop: '1px solid #eeeeff'
-            }}><div>
+            }}><div style={{ height: "30px", paddingTop: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <Select value={this.state.selectedSpace} style={{ width: 170 }} bordered={false} size="small"
                         onChange={this.selectSpaceChange.bind(this)}>
                         {this.state.spaceList.map(s => (
                             <Select.Option value={s.id}>{s.name}</Select.Option>
                         ))}
                     </Select>
-                    <Button type="text" shape="circle" icon={<SettingOutlined />} />
+                    {this.state.spaceList[0].id !== this.state.selectedSpace &&
+                        <SpaceMember spaceId={this.state.selectedSpace} />
+                    }
                 </div>
                 <Divider />
                 <Button block icon={<PlusOutlined />} onClick={() => this.openFileTypeModalVisible()}>
@@ -134,6 +138,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                 <EditFolder />
                 <RichViewer />
                 <HistoryViewer />
+                <CopyEditor />
             </div>
         </>
     );
