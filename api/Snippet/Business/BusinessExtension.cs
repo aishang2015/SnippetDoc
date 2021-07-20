@@ -14,6 +14,7 @@ namespace Snippet.Business
         {
             services.AddHostedService<StateWorker>();
             services.AddHostedService<BroadcastWorker>();
+            services.AddHostedService<CleanFileWorker>();
             return services;
         }
 

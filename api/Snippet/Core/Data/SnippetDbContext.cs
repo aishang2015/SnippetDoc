@@ -22,6 +22,8 @@ namespace Snippet.Core.Data
 
         public DbSet<DocFolderTree> DocFolderTrees { get; set; }
 
+        public DbSet<DocFile> DocFiles { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);

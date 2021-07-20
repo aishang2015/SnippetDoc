@@ -69,6 +69,9 @@ namespace Snippet.Controllers
             var docHistories = _snippetDbContext.DocHistories.Where(dh => dh.DocInfoId == model.id);
             _snippetDbContext.DocHistories.RemoveRange(docHistories);
 
+            var docFiles = _snippetDbContext.DocFiles.Where(dh => dh.DocInfoId == model.id);
+            _snippetDbContext.DocFiles.RemoveRange(docFiles);
+
             await _snippetDbContext.SaveChangesAsync();
             return this.SuccessCommonResult(MessageConstant.ERCYCLE_INFO_0002);
         }

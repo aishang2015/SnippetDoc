@@ -8,7 +8,7 @@ import { DocRequests } from "../../http/requests/doc";
 import { UserDate } from "../common/userDate";
 import { UserGroup } from "../common/userGroup";
 import { ExportUtil } from "../../common/export";
-
+import './richViewer.less';
 
 export function RichViewer() {
 
@@ -55,7 +55,7 @@ export function RichViewer() {
     return (
         <>
             <Modal visible={visible} width={1000} onCancel={closeView} footer={null} bodyStyle={{ padding: 0 }} >
-                <div ref={componentRef} style={{ padding: '24px' }}>
+                <div ref={componentRef} style={{ padding: '24px', overflow: 'auto' }}>
                     <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{docInfo.title}</div>
                     <div style={{ color: "gray", margin: '10px 0', display: 'flex', alignItems: 'center' }} >
 

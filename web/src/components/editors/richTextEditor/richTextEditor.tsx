@@ -9,6 +9,7 @@ import { TreeUtil } from '../../../common/tree-util';
 import { DocRequests } from '../../../http/requests/doc';
 import { EventUtil } from '../../../common/event';
 import { signalRUtil } from '../../common/signalr';
+import { trim } from 'lodash';
 
 
 export function RichTextEditor() {
@@ -18,6 +19,7 @@ export function RichTextEditor() {
     const [docId, setDocId] = useState(0);
 
     const [text, setText] = useState('');
+    const [oldText, setOldText] = useState('');
     const [currentSpaceId, setCurrentSpaceId] = useState(0);
 
     const [editForm] = Form.useForm();
@@ -26,10 +28,11 @@ export function RichTextEditor() {
         language: 'zh_CN',
         height: 700,
         menubar: false,
+        content_style: "img {max-width:100%;}",
         plugins: 'print preview paste importcss searchreplace autolink directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
         toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | table | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview print | insertfile image media template link anchor codesample code | ltr rtl | ',
         images_upload_url: `${Configuration.BaseUrl}/api/file/uploadFile`,
-        images_upload_base_path: `${Configuration.BaseUrl}/files`
+        images_upload_base_path: `${Configuration.BaseUrl}/files`,
     }
 
 
@@ -86,6 +89,11 @@ export function RichTextEditor() {
         }
     }
 
+    function richTextChange(newText: string) {
+        console.log(trim(oldText, newText));
+        setOldText(newText);
+    }
+
     // 关闭模态框
     async function closeModal() {
         setEditVisible(false);
@@ -94,10 +102,11 @@ export function RichTextEditor() {
 
     // 提交表单
     async function submitForm(values: any) {
+
         let docId = values['docId'];
         let upFolderId = values['upFolderId'];
         let title = values['title'];
-        let content = text;
+        let content = oldText;
         try {
             if (docId === undefined) {
 
@@ -118,7 +127,6 @@ export function RichTextEditor() {
                     title: title,
                     content: content
                 });
-                await signalRUtil.stateConnection.invoke("EndEdit", docId);
 
             }
         }
@@ -151,9 +159,8 @@ export function RichTextEditor() {
                     }>
                         <Input placeholder="请输入标题" maxLength={100} autoComplete="off"></Input>
                     </Form.Item>
-                    <Form.Item name="content" valuePropName="initialValue">
-                        <Editor init={tinymceConfig} initialValue={text} value={text}
-                            onEditorChange={(newText) => setText(newText)} />
+                    <Form.Item name="content">
+                        <Editor init={tinymceConfig} initialValue={text} onEditorChange={richTextChange} />
                     </Form.Item>
                 </Form>
             </Modal>

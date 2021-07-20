@@ -10,6 +10,7 @@ using Snippet.Models.Doc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Snippet.Controllers
@@ -130,6 +131,21 @@ namespace Snippet.Controllers
             });
             await _snippetDbContext.SaveChangesAsync();
 
+            // 提取文档中的本地文件名，并关联保存
+            var fileList = new Regex(RegexConstant.GuidPattern).Matches(model.content).Select(m => m.Value);
+            var storeList = _snippetDbContext.DocFiles.Where(d => d.DocInfoId == entity.Entity.Id)
+                .Select(d => d.FileName);
+            var newFileList = fileList.Except(storeList);
+            foreach (var file in newFileList)
+            {
+                _snippetDbContext.DocFiles.Add(new DocFile
+                {
+                    DocInfoId = entity.Entity.Id,
+                    FileName = file
+                });
+            }
+            await _snippetDbContext.SaveChangesAsync();
+
             // 提交事务
             await trans.CommitAsync();
             return this.SuccessCommonResult(MessageConstant.DOC_INFO_001);
@@ -171,6 +187,18 @@ namespace Snippet.Controllers
             });
             await _snippetDbContext.SaveChangesAsync();
 
+            // 提取文档中的本地文件名，并关联保存
+            var fileList = new Regex(RegexConstant.GuidPattern).Matches(origionalDoc.Content).Select(m => m.Value);
+            foreach (var file in fileList)
+            {
+                _snippetDbContext.DocFiles.Add(new DocFile
+                {
+                    DocInfoId = entity.Entity.Id,
+                    FileName = file
+                });
+            }
+            await _snippetDbContext.SaveChangesAsync();
+
             // 提交事务
             await trans.CommitAsync();
 
@@ -207,6 +235,20 @@ namespace Snippet.Controllers
                     Content = model.content,
                     OperateAt = now,
                     OperateBy = userName
+                });
+            }
+
+            // 提取文档中的本地文件名，并关联保存
+            var fileList = new Regex(RegexConstant.GuidPattern).Matches(model.content).Select(m => m.Value);
+            var storeList = _snippetDbContext.DocFiles.Where(d => d.DocInfoId == doc.Id)
+                .Select(d => d.FileName);
+            var newFileList = fileList.Except(storeList);
+            foreach (var file in newFileList)
+            {
+                _snippetDbContext.DocFiles.Add(new DocFile
+                {
+                    DocInfoId = doc.Id,
+                    FileName = file
                 });
             }
 
