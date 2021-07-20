@@ -87,7 +87,7 @@ export function CopyEditor() {
                     <FormItem name="spaceId" label="选择空间" labelCol={{ span: 6 }} wrapperCol={{ span: 12 }}>
                         <Select onChange={selectSpaceChange} placeholder="请选择空间">
                             {spaceList.map(s => (
-                                <Select.Option value={s.id}>{s.name}</Select.Option>
+                                <Select.Option value={s.id} key={s.id}>{s.name}</Select.Option>
                             ))}
                         </Select>
                     </FormItem>

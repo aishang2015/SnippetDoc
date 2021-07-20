@@ -8,12 +8,14 @@ import { FolderRequests } from '../../../http/requests/folder';
 import { TreeUtil } from '../../../common/tree-util';
 import { DocRequests } from '../../../http/requests/doc';
 import { EventUtil } from '../../../common/event';
+import { signalRUtil } from '../../common/signalr';
 
 
 export function RichTextEditor() {
 
     const [editVisible, setEditVisible] = useState(false);
     const [treeData, setTreeData] = useState(new Array<any>());
+    const [docId, setDocId] = useState(0);
 
     const [text, setText] = useState('');
     const [currentSpaceId, setCurrentSpaceId] = useState(0);
@@ -63,6 +65,8 @@ export function RichTextEditor() {
     // 修改富文本文档
     async function modifyFile(params: any) {
         let [fileId, spaceId] = params;
+        setDocId(fileId);
+        await signalRUtil.stateConnection.invoke("BeginEdit", fileId);
         try {
             await initFolderData(spaceId);
             let response = await DocRequests.getDoc({
@@ -83,8 +87,9 @@ export function RichTextEditor() {
     }
 
     // 关闭模态框
-    function closeModal() {
+    async function closeModal() {
         setEditVisible(false);
+        await signalRUtil.stateConnection.invoke("EndEdit", docId);
     }
 
     // 提交表单
@@ -113,6 +118,7 @@ export function RichTextEditor() {
                     title: title,
                     content: content
                 });
+                await signalRUtil.stateConnection.invoke("EndEdit", docId);
 
             }
         }

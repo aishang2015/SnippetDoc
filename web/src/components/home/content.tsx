@@ -1,5 +1,5 @@
 import { Button, List, Modal } from "antd";
-import { EditOutlined, DeleteOutlined, FileTextOutlined, HistoryOutlined, DownloadOutlined, CopyOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, FileTextOutlined, HistoryOutlined, CopyOutlined } from '@ant-design/icons';
 import { useSelector } from "react-redux";
 
 import './common.less';
@@ -8,25 +8,30 @@ import { FolderRequests } from "../../http/requests/folder";
 import { EventUtil } from "../../common/event";
 import { DocRequests } from "../../http/requests/doc";
 import { UserDate } from "../common/userDate";
+import { EditingState } from "../common/editing";
 
 export function ContentPart() {
 
     const [docList, setDocList] = useState(new Array<any>());
 
-    const selector = useSelector((state: any) => {
+    const classifySelector = useSelector((state: any) => {
         return state.ClassifyReducer;
+    });
+
+    const editdocSelector = useSelector((state: any) => {
+        return state.EditDocReducer.editDoc;
     });
 
     useEffect(() => {
         initDocList();
-    }, [selector.spaceId, selector.classify, selector.folderId]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [classifySelector.spaceId, classifySelector.classify, classifySelector.folderId]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // 取得文件夹中的文件列表
     async function initDocList() {
         try {
             let response = await DocRequests.getDocs({
-                spaceId: selector.spaceId,
-                folderId: selector.folderId
+                spaceId: classifySelector.spaceId,
+                folderId: classifySelector.folderId
             });
             setDocList(response.data.data);
         } catch (e) {
@@ -40,7 +45,7 @@ export function ContentPart() {
             content: '是否删除该文件夹？',
             onOk: async () => {
                 try {
-                    await FolderRequests.deleteFolder({ spaceId: selector.spaceId, folderId: selector.folderId });
+                    await FolderRequests.deleteFolder({ spaceId: classifySelector.spaceId, folderId: classifySelector.folderId });
                     EventUtil.EventEmitterInstance().emit('folderDelete', true);
                 } catch (e) {
                     console.error(e);
@@ -94,17 +99,31 @@ export function ContentPart() {
         });
     }
 
+    function docActions(item: any) {
+        return editdocSelector[item.id] ?
+            [
+                <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => copyDoc(e, item.id)}><CopyOutlined /></a>,
+                <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => viewHistory(e, item.id)}><HistoryOutlined /></a>,
+            ] :
+            [
+                <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => copyDoc(e, item.id)}><CopyOutlined /></a>,
+                <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => viewHistory(e, item.id)}><HistoryOutlined /></a>,
+                <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => modifyFile(e, item.id, classifySelector.spaceId)}><EditOutlined /></a>,
+                <a key={"list-delete"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => deleteDoc(e, item.id)}><DeleteOutlined /></a>
+            ];
+    }
+
     return (
         <>
             <div className="part-container">
                 <div className='big-title'>内容</div>
                 <>
-                    {selector.folderId !== null &&
+                    {classifySelector.folderId !== null &&
                         <>
                             <div className='small-title'>文件夹操作</div>
                             <div>
                                 <Button style={{ marginRight: '10px' }} icon={<EditOutlined />}
-                                    onClick={() => modifyFolder(selector.folderId, selector.spaceId)}>修改</Button>
+                                    onClick={() => modifyFolder(classifySelector.folderId, classifySelector.spaceId)}>修改</Button>
                                 <Button style={{ marginRight: '10px' }} icon={<DeleteOutlined />} onClick={deleteFolder}>删除</Button>
                             </div>
                         </>
@@ -115,21 +134,25 @@ export function ContentPart() {
                     <List dataSource={docList} split={true}
                         renderItem={item => {
                             return (
-                                <List.Item style={{ cursor: 'pointer' }} onClick={() => viewDoc(item.docType, item.id)} actions={[
-                                    <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => copyDoc(e, item.id)}><CopyOutlined /></a>,
-                                    <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => viewHistory(e, item.id)}><HistoryOutlined /></a>,
-                                    <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => modifyFile(e, item.id, selector.spaceId)}><EditOutlined /></a>,
-                                    <a key={"list-delete"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => deleteDoc(e, item.id)}><DeleteOutlined /></a>
-
-                                ]}>
+                                <List.Item style={{ cursor: 'pointer' }} onClick={() => viewDoc(item.docType, item.id)} actions={
+                                    docActions(item)
+                                }>
                                     <List.Item.Meta
-                                        title={item.title}
+                                        title={
+                                            <>
+                                                {item.title}
+                                                {editdocSelector[item.id] &&
+                                                    <EditingState userName={editdocSelector[item.id]} />
+                                                }
+                                            </>
+                                        }
                                         description={
                                             <>
                                                 <div style={{ display: 'flex', alignItems: 'center' }}>
                                                     <span>作者：</span>
                                                     <UserDate userName={item.createBy} avatarColor={item.creatorAvatarColor}
                                                         avatarText={item.creatorAvatarText} operateAt={item.createAt} />
+
                                                     {item.updateBy !== null &&
                                                         <>
                                                             <span style={{ marginLeft: '20px' }}>最近更新：</span>

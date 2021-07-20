@@ -3,13 +3,12 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import NavMenu from '../../components/menu/navMenu';
 import NavHeader from '../../components/header/navHeader';
-import { Configuration } from '../../common/config';
 import './layout.less';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { onReceiveMessage } from '../../redux/notification/notificationCreator';
-
-const signalR = require("@microsoft/signalr");
+import { signalRUtil } from '../../components/common/signalr';
+import { onGetEditDocInfo } from '../../redux/editDoc/editDocCreator';
 
 const { Content } = Layout;
 
@@ -25,26 +24,18 @@ class BasicLayout extends React.Component<any, any> {
     }
 
     async componentDidMount() {
-        let connection = new signalR.HubConnectionBuilder()
-            .withUrl(`${Configuration.BaseUrl}/broadcast`, { accessTokenFactory: () => localStorage.getItem("token") })
-            .build();
-
-        let startFun = async () => {
-            try {
-                await connection.start();
-            } catch (err) {
-                console.log(err);
-                setTimeout(startFun, 5000);
-            }
-        }
-
-        connection.on("HandleMessage", (message: string) => {
+        await signalRUtil.beginBroadcastConnection();
+        await signalRUtil.beginStateConnection();
+        signalRUtil.broadcastConnection.on("HandleMessage", (message: string) => {
             this.props.receiveMessage(message);
         });
+        signalRUtil.stateConnection.on("GetEditingDic", (message: any) => {
+            this.props.getEditDocInfo(message);
+        });
+    }
 
-        connection.onclose(startFun);
-
-        await startFun();
+    async componentWillUnmount() {
+        signalRUtil.broadcastConnection.off("HandleMessage");
     }
 
     render = () => (
@@ -53,7 +44,7 @@ class BasicLayout extends React.Component<any, any> {
                 <NavHeader />
                 <Content className="layout-content">
                     <div className="left-part">
-                        <NavMenu/>
+                        <NavMenu />
                     </div>
                     <div className="right-part">
                         {this.props.children}
@@ -71,5 +62,6 @@ export default connect(
     }),
     (dispatch: Dispatch) => ({
         receiveMessage: (msg: string) => dispatch(onReceiveMessage(msg)),
+        getEditDocInfo: (msg: any) => dispatch(onGetEditDocInfo(msg)),
     })
 )(withRouter(BasicLayout));

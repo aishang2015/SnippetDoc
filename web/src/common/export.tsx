@@ -2,22 +2,22 @@ export class ExportUtil {
 
     static export2Word(html = '', filename = '') {
 
-        var preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML To Doc</title></head><body>";
-        var postHtml = "</body></html>";
-        var html = preHtml + html + postHtml;
+        let preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML To Doc</title></head><body>";
+        let postHtml = "</body></html>";
+        let fullHtml = preHtml + html + postHtml;
 
-        var blob = new Blob(['\ufeff', html], {
+        let blob = new Blob(['\ufeff', fullHtml], {
             type: 'application/msword'
         });
 
         // Specify link url
-        var url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(html);
+        let url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(fullHtml);
 
         // Specify file name
         filename = filename ? filename + '.doc' : 'document.doc';
 
         // Create download link element
-        var downloadLink = document.createElement("a");
+        let downloadLink = document.createElement("a");
 
         document.body.appendChild(downloadLink);
 
@@ -37,7 +37,7 @@ export class ExportUtil {
         document.body.removeChild(downloadLink);
     }
 
-    static export2Pdf(html='') {
+    static export2Pdf(html = '') {
         const WindowPrt = window.open('', '', '');
         WindowPrt!.document.write(html);
         WindowPrt!.document.close();
