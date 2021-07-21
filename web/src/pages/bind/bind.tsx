@@ -90,6 +90,7 @@ export class Bind extends React.Component<any, BindState> {
 
             let userResponse = await getUserInfo();
             StorageService.setUserInfo(userResponse.data.data.avatarColor, userResponse.data.data.avatarText);
+            StorageService.setUserRole(userResponse.data.data.systemRole);
 
             window.location.reload();
         } catch (err) {

@@ -1,5 +1,5 @@
 import {
-    PlusOutlined, FileTextOutlined, FieldTimeOutlined, DeleteOutlined
+    PlusOutlined, FileTextOutlined, DeleteOutlined
 } from '@ant-design/icons';
 import React, { Key } from "react";
 import { Button, Divider, Modal, Select, Tree } from "antd";
@@ -34,6 +34,7 @@ type INavMenuState = {
 
     spaceList: GetUserSpaceListResult[];
     selectedSpace: number;
+    spaceRole: number;
 
     treeData: any[];
 
@@ -41,7 +42,6 @@ type INavMenuState = {
 }
 
 class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
-
 
     constructor(props: any) {
         super(props);
@@ -51,6 +51,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
             richTextModalVisible: false,
             spaceList: [{ id: 0, name: '我的空间', role: 0 }],
             selectedSpace: 0,
+            spaceRole: 0,
             treeData: [],
             selectedKeys: []
         }
@@ -66,11 +67,12 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
             this.setState({
                 treeData: treedata,
                 spaceList: userSpace.data.data,
-                selectedSpace: spaceId
+                selectedSpace: spaceId,
+                spaceRole: userSpace.data.data[0].role
             });
 
             // 全局同步
-            this.props.classifyChange(spaceId, 0, null);
+            this.props.classifyChange(spaceId, userSpace.data.data[0].role, 0, null);
         } catch (e) {
             console.error(e);
         }
@@ -95,17 +97,19 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                     <Select value={this.state.selectedSpace} style={{ width: 170 }} bordered={false} size="small"
                         onChange={this.selectSpaceChange.bind(this)}>
                         {this.state.spaceList.map(s => (
-                            <Select.Option value={s.id}>{s.name}</Select.Option>
+                            <Select.Option value={s.id} key={s.id}>{s.name}</Select.Option>
                         ))}
                     </Select>
-                    {this.state.spaceList[0].id !== this.state.selectedSpace &&
+                    {this.state.spaceRole !== 0 &&
                         <SpaceMember spaceId={this.state.selectedSpace} />
                     }
                 </div>
                 <Divider />
-                <Button block icon={<PlusOutlined />} onClick={() => this.openFileTypeModalVisible()}>
-                    创建
-                </Button>
+                {this.state.spaceList.find(s => s.id === this.state.selectedSpace)?.role !== 3 &&
+                    <Button block icon={<PlusOutlined />} onClick={() => this.openFileTypeModalVisible()}>
+                        创建
+                    </Button>
+                }
                 <ul className='menu-list' style={{ flex: 1, overflow: 'auto' }}>
                     <li className={this.state.menuIndex === 1 ? 'menu-item menu-active' : 'menu-item'} onClick={() => this.setMenuIndex(1)}>
                         <FileTextOutlined /> &nbsp; &nbsp;内容
@@ -123,9 +127,9 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                 </ul>
                 <Divider />
                 <ul className='menu-list' style={{ flex: 0 }}>
-                    <li className={this.state.menuIndex === 2 ? 'menu-item menu-active' : 'menu-item'} onClick={() => this.setMenuIndex(2)}>
+                    {/* <li className={this.state.menuIndex === 2 ? 'menu-item menu-active' : 'menu-item'} onClick={() => this.setMenuIndex(2)}>
                         <FieldTimeOutlined /> &nbsp; &nbsp;最近
-                    </li>
+                    </li> */}
                     <li className={this.state.menuIndex === 3 ? 'menu-item menu-active' : 'menu-item'} onClick={() => this.setMenuIndex(3)}>
                         <DeleteOutlined /> &nbsp; &nbsp;回收站
                     </li>
@@ -161,7 +165,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
         });
 
         // 全局同步
-        this.props.classifyChange(this.state.selectedSpace, index, null);
+        this.props.classifyChange(this.state.selectedSpace, this.state.spaceRole, index, null);
     }
 
     // 选择空间变化
@@ -169,15 +173,17 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
         try {
             let response = await FolderRequests.getFolderTree({ spaceId: value });
             let treedata = TreeUtil.MakeAntTreeKeyData(response.data.data, null);
+            let spaceRole = this.state.spaceList.find(s => s.id === value)?.role!;
             this.setState({
                 selectedSpace: value,
+                spaceRole: spaceRole,
                 treeData: treedata,
                 menuIndex: 0,
                 selectedKeys: []
             });
 
             // 全局同步
-            this.props.classifyChange(value, 0, null);
+            this.props.classifyChange(value, spaceRole, 0, null);
         }
         catch (e) {
             console.error(e);
@@ -230,7 +236,7 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
         });
 
         // 全局同步
-        this.props.classifyChange(this.state.selectedSpace, 1, selectedKeys[0]);
+        this.props.classifyChange(this.state.selectedSpace, this.state.spaceRole, 1, selectedKeys[0]);
     }
 }
 
@@ -239,7 +245,7 @@ export default connect(
         collapsed: state.NavCollapsedReducer.collapsed
     }),
     (dispatch: Dispatch) => ({
-        classifyChange: (spaceId: number, classify: number, folderId: number) =>
-            dispatch(onClassifyChange(spaceId, classify, folderId))
+        classifyChange: (spaceId: number, spaceRole: number, classify: number, folderId: number) =>
+            dispatch(onClassifyChange(spaceId, spaceRole, classify, folderId))
     })
 )(NavMenu);

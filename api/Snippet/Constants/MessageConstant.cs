@@ -52,6 +52,7 @@
         public static readonly (string, string) SPACE_ERROR_0006 = ("SPACE_ERROR_0006", "此用户已经在此空间中！");
         public static readonly (string, string) SPACE_ERROR_0007 = ("SPACE_ERROR_0007", "空间中不存在该用户！");
         public static readonly (string, string) SPACE_ERROR_0008 = ("SPACE_ERROR_0008", "角色没有变化！");
+        public static readonly (string, string) SPACE_ERROR_0009 = ("SPACE_ERROR_0009", "没有权限在该空间进行操作，请联系管理员！");
 
         #endregion SpaceController
 

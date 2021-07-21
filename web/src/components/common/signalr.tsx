@@ -13,6 +13,7 @@ export class signalRUtil {
 
         signalRUtil.broadcastConnection = new signalR.HubConnectionBuilder()
             .withUrl(`${Configuration.BaseUrl}/broadcast`, { accessTokenFactory: () => localStorage.getItem("token") })
+            .configureLogging(signalR.LogLevel.Error)
             .build();
 
         let startFun = async () => {
@@ -34,6 +35,7 @@ export class signalRUtil {
 
         signalRUtil.stateConnection = new signalR.HubConnectionBuilder()
             .withUrl(`${Configuration.BaseUrl}/state`, { accessTokenFactory: () => localStorage.getItem("token") })
+            .configureLogging(signalR.LogLevel.Error)
             .build();
 
         let startFun = async () => {

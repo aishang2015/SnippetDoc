@@ -8,6 +8,7 @@ export const ClassifyReducer: Reducer<ClassifyState> = (state, action: ClassifyA
     if (state === undefined) {
         return {
             spaceId: null,
+            spaceRole: null,
             classify: null,
             folderId: null
         };
@@ -17,6 +18,7 @@ export const ClassifyReducer: Reducer<ClassifyState> = (state, action: ClassifyA
         case "CLASSIFY_CHANGE":
             return {
                 spaceId: action.spaceId!,
+                spaceRole: action.spaceRole!,
                 classify: action.classify!,
                 folderId: action.folderId!
             };

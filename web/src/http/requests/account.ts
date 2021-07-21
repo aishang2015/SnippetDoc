@@ -46,6 +46,7 @@ export interface UserInfoResult {
     phoneNumber: string;
     avatarColor: string;
     avatarText: string;
+    systemRole: string;
 }
 
 export interface UserAvatarInfo {

@@ -18,10 +18,14 @@ namespace Snippet.Controllers
 
         private readonly IUserService _userService;
 
-        public RecycleController(SnippetDbContext snippetDbContext, IUserService userService)
+        private readonly ISpaceRightService _spaceRightService;
+
+        public RecycleController(SnippetDbContext snippetDbContext, IUserService userService,
+            ISpaceRightService spaceRightService)
         {
             _snippetDbContext = snippetDbContext;
             _userService = userService;
+            _spaceRightService = spaceRightService;
         }
 
         [HttpPost]
@@ -55,6 +59,13 @@ namespace Snippet.Controllers
         public async Task<CommonResult> RevertDeleteDoc(RevertDeleteDocInputModel model)
         {
             var doc = _snippetDbContext.DocInfos.Find(model.id);
+
+            // 校验空间业务权限
+            if (!_spaceRightService.CanEditSpace(doc.SpaceId))
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0009);
+            }
+
             doc.IsDelete = false;
             await _snippetDbContext.SaveChangesAsync();
             return this.SuccessCommonResult(MessageConstant.ERCYCLE_INFO_0001);
@@ -64,6 +75,13 @@ namespace Snippet.Controllers
         public async Task<CommonResult> PhysicsDeleteDoc(PhysicsDeleteDocInputModel model)
         {
             var doc = _snippetDbContext.DocInfos.Find(model.id);
+
+            // 校验空间业务权限
+            if (!_spaceRightService.CanEditSpace(doc.SpaceId))
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0009);
+            }
+
             _snippetDbContext.DocInfos.Remove(doc);
 
             var docHistories = _snippetDbContext.DocHistories.Where(dh => dh.DocInfoId == model.id);

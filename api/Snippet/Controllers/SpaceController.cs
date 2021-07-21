@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Snippet.Business.Hubs;
 using Snippet.Business.Services;
 using Snippet.Constants;
 using Snippet.Core;
@@ -23,12 +25,20 @@ namespace Snippet.Controllers
 
         private readonly IUserService _userService;
 
+        private readonly ISpaceRightService _spaceRightService;
+
+        private readonly IHubContext<BroadcastHub, IBroadcastClient> _broadcastHub;
+
         public SpaceController(
             SnippetDbContext snippetDbContext,
-            IUserService userService)
+            IUserService userService,
+            ISpaceRightService spaceRightService,
+            IHubContext<BroadcastHub, IBroadcastClient> broadcastHub)
         {
             _snippetDbContext = snippetDbContext;
             _userService = userService;
+            _spaceRightService = spaceRightService;
+            _broadcastHub = broadcastHub;
         }
 
         /// <summary>
@@ -167,6 +177,14 @@ namespace Snippet.Controllers
         [HttpPost]
         public async Task<CommonResult> AddSpaceMember(AddSpaceMemberInputModel model)
         {
+            // 管理员或空间管理员可以操作
+            var isSystemManager = await _userService.IsSystemUserAsync();
+            if (!isSystemManager && !_spaceRightService.CanManageSpace(model.spaceId))
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0009);
+            }
+
+            // 重复添加校验
             if (_snippetDbContext.SpaceMembers.Any(sm =>
                  sm.SpaceId == model.spaceId && sm.MemberName == model.userName))
             {
@@ -182,6 +200,9 @@ namespace Snippet.Controllers
             });
             await _snippetDbContext.SaveChangesAsync();
 
+            // 广播
+            await _broadcastHub.Clients.All.HandleMessage($"{_userService.GetUserName()}创建了一个新的空间");
+
             return this.SuccessCommonResult(MessageConstant.SPACE_INFO_0004);
         }
 
@@ -192,13 +213,23 @@ namespace Snippet.Controllers
         [HttpPost]
         public async Task<CommonResult> UpdateSpaceMember(UpdateSpaceMemberInputModel model)
         {
+            // 管理员或空间管理员可以操作
+            var isSystemManager = await _userService.IsSystemUserAsync();
+            if (!isSystemManager && !_spaceRightService.CanManageSpace(model.spaceId))
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0009);
+            }
+
             var sm = _snippetDbContext.SpaceMembers.FirstOrDefault(sm =>
                  sm.SpaceId == model.spaceId && sm.MemberName == model.userName);
+
+            // 数据不存在
             if (sm == null)
             {
                 return this.FailCommonResult(MessageConstant.SPACE_ERROR_0007);
             }
 
+            // 数据未变化
             if (sm.MemberRole == model.role)
             {
                 return this.FailCommonResult(MessageConstant.SPACE_ERROR_0008);
@@ -216,6 +247,13 @@ namespace Snippet.Controllers
         [HttpPost]
         public async Task<CommonResult> RemoveSpaceMember(RemoveSpaceMemberInputModel model)
         {
+            // 管理员或空间管理员可以操作
+            var isSystemManager = await _userService.IsSystemUserAsync();
+            if (!isSystemManager && !_spaceRightService.CanManageSpace(model.spaceId))
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0009);
+            }
+
             // 删除空间成员
             var sm = _snippetDbContext.SpaceMembers.FirstOrDefault(sm =>
                 sm.SpaceId == model.spaceId && sm.MemberName == model.userName);

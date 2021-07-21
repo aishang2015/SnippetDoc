@@ -13,7 +13,6 @@ namespace Snippet.Business
         public static IServiceCollection AddWorks(this IServiceCollection services)
         {
             services.AddHostedService<StateWorker>();
-            services.AddHostedService<BroadcastWorker>();
             services.AddHostedService<CleanFileWorker>();
             return services;
         }
@@ -28,6 +27,7 @@ namespace Snippet.Business
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ISpaceRightService, SpaceRightService>();
             return services;
         }
     }

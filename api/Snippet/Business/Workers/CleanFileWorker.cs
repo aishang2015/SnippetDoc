@@ -4,7 +4,6 @@ using Microsoft.Extensions.Hosting;
 using Snippet.Constants;
 using Snippet.Core.Data;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -28,7 +27,6 @@ namespace Snippet.Business.Workers
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-
             var isTodayRun = false;
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -65,7 +63,6 @@ namespace Snippet.Business.Workers
                 {
                     isTodayRun = false;
                 }
-
             }
         }
     }

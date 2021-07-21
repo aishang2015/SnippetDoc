@@ -10,8 +10,7 @@ export class Setting extends React.Component<ISettingProps>{
 
     tabInfos = [
         { name: '公用空间管理', key: 1, content: (<SpaceSetting />) },
-        { name: '用户管理', key: 2, content: (<UserSetting/>) },
-        { name: '信息', key: 3, content: (<div>3</div>) }
+        { name: '用户管理', key: 2, content: (<UserSetting/>) }
     ];
 
     render = () => {

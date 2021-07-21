@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Snippet.Business.Hubs;
 using Snippet.Business.Services;
 using Snippet.Constants;
 using Snippet.Core.Data;
@@ -24,10 +26,19 @@ namespace Snippet.Controllers
 
         private readonly IUserService _userService;
 
-        public DocController(SnippetDbContext snippetDbContext, IUserService userService)
+        private readonly ISpaceRightService _spaceRightService;
+
+        private readonly IHubContext<BroadcastHub, IBroadcastClient> _broadcastHub;
+
+        public DocController(SnippetDbContext snippetDbContext,
+            IUserService userService,
+            ISpaceRightService spaceRightService,
+            IHubContext<BroadcastHub, IBroadcastClient> broadcastHub)
         {
             _snippetDbContext = snippetDbContext;
             _userService = userService;
+            _spaceRightService = spaceRightService;
+            _broadcastHub = broadcastHub;
         }
 
         [HttpPost]
@@ -100,6 +111,12 @@ namespace Snippet.Controllers
         [HttpPost]
         public async Task<CommonResult> CreateDoc(CreateDocInputModel model)
         {
+            // 校验空间业务权限
+            if (!_spaceRightService.CanEditSpace(model.spaceId))
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0009);
+            }
+
             var now = DateTime.Now;
             var userName = _userService.GetUserName();
 
@@ -148,6 +165,9 @@ namespace Snippet.Controllers
 
             // 提交事务
             await trans.CommitAsync();
+
+            // 广播
+            await _broadcastHub.Clients.All.HandleMessage($"{userName}创建了一篇新的文档");
             return this.SuccessCommonResult(MessageConstant.DOC_INFO_001);
         }
 
@@ -213,6 +233,13 @@ namespace Snippet.Controllers
 
             // 更新内容
             var doc = _snippetDbContext.DocInfos.Find(model.id);
+
+            // 校验空间业务权限
+            if (!_spaceRightService.CanEditSpace(doc.SpaceId))
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0009);
+            }
+
             doc.Title = model.title;
             doc.Content = model.content;
             doc.UpdateBy = userName;
@@ -261,6 +288,13 @@ namespace Snippet.Controllers
         public async Task<CommonResult> DeleteDoc(DeleteDocInputModel model)
         {
             var doc = _snippetDbContext.DocInfos.Find(model.id);
+
+            // 校验空间业务权限
+            if (!_spaceRightService.CanEditSpace(doc.SpaceId))
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0009);
+            }
+
             doc.IsDelete = true;
             await _snippetDbContext.SaveChangesAsync();
             return this.SuccessCommonResult(MessageConstant.DOC_INFO_003);

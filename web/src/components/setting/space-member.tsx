@@ -6,6 +6,8 @@ import { DebounceSelect } from "../select/debounce-select";
 import { UserRequests } from "../../http/requests/user";
 import { map } from 'lodash';
 import { Constants } from "../../common/constant";
+import { useSelector } from "react-redux";
+import { RightUtil } from "../../common/right";
 
 interface UserValue {
     label: string;
@@ -24,6 +26,10 @@ export function SpaceMember(props: any) {
     const [tableData, setTableData] = useState(new Array<any>());
     const [setMemberForm] = Form.useForm();
     const [setMemberRoleForm] = Form.useForm();
+
+    const classifySelector = useSelector((state: any) => {
+        return state.ClassifyReducer;
+    });
 
     const columns: any = [
         {
@@ -59,10 +65,16 @@ export function SpaceMember(props: any) {
             width: '300px',
             align: 'center',
             render: (text: any, record: any) => (
-                <Space>
-                    <a onClick={() => editMemberRole(record)}>修改角色</a>
-                    <a onClick={() => removeSpaceMember(record.userName)}>移出成员</a>
-                </Space>
+                <>
+                    {(classifySelector.spaceRole === 1 || RightUtil.IsSystemManage()) ?
+                        <Space>
+                            <a onClick={() => editMemberRole(record)}>修改角色</a>
+                            <a onClick={() => removeSpaceMember(record.userName)}>移出成员</a>
+                        </Space>
+                        :
+                        <span>无</span>
+                    }
+                </>
             )
         },
     ];
@@ -172,7 +184,9 @@ export function SpaceMember(props: any) {
                 onClick={setSpaceMember}></Button>
             <Modal visible={isEditVisible} footer={null} forceRender={true} title="设定空间成员"
                 onCancel={() => setIsEditVisible(false)} width='1000px'>
-                <Button style={{ marginBottom: '10px' }} onClick={addMember}><PlusOutlined />添加成员</Button>
+                {(classifySelector.spaceRole === 1 || RightUtil.IsSystemManage()) &&
+                    <Button style={{ marginBottom: '10px' }} onClick={addMember}><PlusOutlined />添加成员</Button>
+                }
                 <Table bordered pagination={false} style={{ marginBottom: '10px' }} columns={columns} dataSource={tableData}>
 
                 </Table>

@@ -103,9 +103,13 @@ namespace Snippet.Controllers
             // 查找自己的信息
             var user = await _userManager.FindByNameAsync(User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
+            var userResult = _mapper.Map<UserInfoOutputModel>(user);
+
+            // 用户的角色
+            userResult.SystemRole = (await _userManager.GetRolesAsync(user)).First();
+
             // 返回结果
-            return this.SuccessCommonResult(MessageConstant.EMPTYTUPLE,
-                _mapper.Map<UserInfoOutputModel>(user));
+            return this.SuccessCommonResult(userResult);
         }
 
         /// <summary>

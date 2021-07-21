@@ -1,7 +1,6 @@
 import './home.less';
 
 import React from "react";
-import { getUserInfo } from '../../http/requests/account';
 import { connect } from 'react-redux';
 import { Welcome } from '../../components/common/welcome';
 import { ContentPart } from '../../components/home/content';
@@ -23,18 +22,18 @@ export class Home extends React.Component<any, home>{
     }
 
     async componentDidMount() {
-        try {
-            let response = await getUserInfo();
-            let data = response.data.data;
-            this.setState({
-                id: data.id,
-                userName: data.userName,
-                email: data.email,
-                phoneNumber: data.phoneNumber
-            });
-        } catch (err) {
-            return;
-        }
+        // try {
+        //     let response = await getUserInfo();
+        //     let data = response.data.data;
+        //     this.setState({
+        //         id: data.id,
+        //         userName: data.userName,
+        //         email: data.email,
+        //         phoneNumber: data.phoneNumber
+        //     });
+        // } catch (err) {
+        //     return;
+        // }
     }
 
     // 标题内容

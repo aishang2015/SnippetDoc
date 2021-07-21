@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Snippet.Business.Hubs;
 using Snippet.Business.Services;
 using Snippet.Constants;
 using Snippet.Core.Data;
@@ -18,17 +20,32 @@ namespace Snippet.Controllers
     {
         private readonly SnippetDbContext _snippetDbContext;
 
+        private readonly ISpaceRightService _spaceRightService;
+
         private readonly IUserService _userService;
 
-        public FolderController(SnippetDbContext snippetDbContext, IUserService userService)
+        private readonly IHubContext<BroadcastHub, IBroadcastClient> _broadcastHub;
+
+        public FolderController(SnippetDbContext snippetDbContext,
+            ISpaceRightService spaceRightService,
+            IUserService userService,
+            IHubContext<BroadcastHub, IBroadcastClient> broadcastHub)
         {
             _snippetDbContext = snippetDbContext;
+            _spaceRightService = spaceRightService;
             _userService = userService;
+            _broadcastHub = broadcastHub;
         }
 
         [HttpPost]
         public async Task<CommonResult> CreateFolder(CreateFolderInputModel model)
         {
+            // 校验空间业务权限
+            if (!_spaceRightService.CanEditSpace(model.spaceId))
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0009);
+            }
+
             using var trans = await _snippetDbContext.Database.BeginTransactionAsync();
 
             // 创建文件夹信息
@@ -65,6 +82,9 @@ namespace Snippet.Controllers
             });
             await _snippetDbContext.SaveChangesAsync();
             await trans.CommitAsync();
+
+            // 广播
+            await _broadcastHub.Clients.All.HandleMessage($"{_userService.GetUserName()}创建了一个新的文件夹");
             return this.SuccessCommonResult(MessageConstant.FOLDER_INFO_0001);
         }
 
@@ -99,6 +119,12 @@ namespace Snippet.Controllers
         [HttpPost]
         public async Task<CommonResult> DeleteFolder(DeleteFolderInputModel model)
         {
+            // 校验空间业务权限
+            if (!_spaceRightService.CanEditSpace(model.spaceId))
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0009);
+            }
+
             var folderTrees = (from f in _snippetDbContext.DocFolders
                                join ft in _snippetDbContext.DocFolderTrees
                                    on f.Id equals ft.Ancestor
@@ -132,6 +158,13 @@ namespace Snippet.Controllers
         [HttpPost]
         public async Task<CommonResult> UpdateFolder(UpdateFolderInputModel model)
         {
+            // 校验空间业务权限
+            if (!_spaceRightService.CanEditSpace(model.spaceId))
+            {
+                return this.FailCommonResult(MessageConstant.SPACE_ERROR_0009);
+            }
+
+            // 不能将自己指定为自己的上级
             if (model.upFolderId == model.folderId)
             {
                 return this.FailCommonResult(MessageConstant.FOLDER_ERROR_0002);
@@ -146,16 +179,6 @@ namespace Snippet.Controllers
                                select ft.Ancestor).FirstOrDefault();
             if (upFolderId != model.upFolderId)
             {
-                //// 找到当前文件夹的祖先节点集合
-                //var upFolderIds = from ft in _snippetDbContext.DocFolderTrees
-                //                  where ft.Descendant == folder.Id && ft.Length > 0
-                //                  select ft.Ancestor;
-
-                //// 找到当前文件夹的后代节点集合
-                //var subFolderIds = from ft in _snippetDbContext.DocFolderTrees
-                //                   where ft.Ancestor == folder.Id
-                //                   select ft.Descendant;
-
                 // 找到上一步祖先节点和后代节点之间的所有关系
                 var treeNodes = from ft in _snippetDbContext.DocFolderTrees
                                 let upfolderIdQuery = (from ft1 in _snippetDbContext.DocFolderTrees

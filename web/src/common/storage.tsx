@@ -28,6 +28,7 @@ export class StorageService {
         localStorage.removeItem("expire");
         localStorage.removeItem("avatar-color");
         localStorage.removeItem("avatar-text");
+        localStorage.removeItem("user-role");
     }
 
     static setLoginStore(accessToken: string, userName: string, expire: string): void {
@@ -39,6 +40,10 @@ export class StorageService {
     static setUserInfo(avatarColor: string, avatarText: string): void {
         localStorage.setItem('avatar-color', avatarColor);
         localStorage.setItem('avatar-text', avatarText);
+    }
+
+    static setUserRole(userRole: string) {
+        localStorage.setItem('user-role', userRole);
     }
 
     static getAccessToken = () => localStorage.getItem("token");

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Snippet.Constants;
-using Snippet.Core.Data;
 using Snippet.Models.File;
 using System;
 using System.IO;
@@ -13,14 +12,11 @@ namespace Snippet.Controllers
     [ApiController]
     public class FileController : ControllerBase
     {
-        private readonly SnippetDbContext _snippetDbContext;
-
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public FileController(SnippetDbContext snippetDbContext,
+        public FileController(
             IWebHostEnvironment webHostEnvironment)
         {
-            _snippetDbContext = snippetDbContext;
             _webHostEnvironment = webHostEnvironment;
         }
 

@@ -58,7 +58,6 @@ export function ContentPart() {
     }
 
     function modifyFile(e: any, fileId: any, spaceId: any, docType: any) {
-        console.log(docType);
         e.stopPropagation();
         if (docType === 1) {
             EventUtil.Emit("editRichDoc", [fileId, spaceId]);
@@ -121,7 +120,7 @@ export function ContentPart() {
     }
 
     function docActions(item: any) {
-        return editdocSelector[item.id] ?
+        return (editdocSelector[item.id] || classifySelector.spaceRole === 3) ?
             [
                 <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => copyDoc(e, item.id)}><CopyOutlined /></a>,
                 <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => viewHistory(e, item.id, item.docType)}><HistoryOutlined /></a>,

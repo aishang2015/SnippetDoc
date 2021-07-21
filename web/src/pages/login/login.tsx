@@ -63,6 +63,7 @@ class Login extends React.Component<any> {
 
             let userResponse = await getUserInfo();
             StorageService.setUserInfo(userResponse.data.data.avatarColor, userResponse.data.data.avatarText);
+            StorageService.setUserRole(userResponse.data.data.systemRole);
 
             window.location.reload();
 

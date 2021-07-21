@@ -15,6 +15,7 @@ import { StorageService } from "../../common/storage";
 import { Setting } from "../setting/setting";
 import { UserSetting } from "./userSetting";
 import { PwdSetting } from "./pwdSetting";
+import { RightUtil } from "../../common/right";
 
 type INavHeaderProps = {
     collapsed: boolean;
@@ -94,8 +95,10 @@ class NavHeader extends React.Component<INavHeaderProps, INavHeaderState>{
                             <Button style={{ verticalAlign: 'middle' }} shape="circle" icon={<NotificationOutlined />} />
                         </Dropdown>
                     </Badge>
-                    <Button style={{ marginLeft: "20px", verticalAlign: 'middle' }} shape="circle" icon={<SettingOutlined />}
-                        onClick={() => this.showSetting()} />
+                    {RightUtil.IsSystemManage() &&
+                        <Button style={{ marginLeft: "20px", verticalAlign: 'middle' }} shape="circle" icon={<SettingOutlined />}
+                            onClick={() => this.showSetting()} />
+                    }
                     <Dropdown className="dropdown" overlay={menu} trigger={['click']} arrow={false}>
                         <a className="ant-dropdown-link" onClick={e => e.preventDefault()} style={{ display: 'inline-block' }}>
                             <Avatar style={{ color: 'white', backgroundColor: avatarColor!, marginRight: '5px' }}>
