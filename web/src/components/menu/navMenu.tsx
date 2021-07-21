@@ -20,6 +20,8 @@ import { SpaceMember } from '../setting/space-member';
 import { CopyEditor } from '../editors/copyEditor/copyEditor';
 import { CodeEditor } from '../editors/codeEditor/codeEditor';
 import { CodeViewer } from '../viewers/codeViewer';
+import { MarkdownEditor } from '../editors/markdownEditor/markdownEditor';
+import { MarkdownViewer } from '../viewers/markdownViewer';
 
 type INavMenuProps = {
     collapsed: boolean;
@@ -138,13 +140,15 @@ class NavMenu extends React.Component<INavMenuProps, INavMenuState>{
                 </Modal>
                 <RichTextEditor />
                 <CodeEditor />
+                <MarkdownEditor />
                 <CopyEditor />
 
                 <EditFolder />
-                
+
                 <RichViewer />
                 <HistoryViewer />
                 <CodeViewer />
+                <MarkdownViewer />
             </div>
         </>
     );

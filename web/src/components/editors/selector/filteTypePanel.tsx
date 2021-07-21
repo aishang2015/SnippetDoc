@@ -1,4 +1,4 @@
-import { FileTextOutlined, FolderOutlined, CodeOutlined } from '@ant-design/icons';
+import { FileTextOutlined, FolderOutlined, CodeOutlined, FileMarkdownOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import { EventUtil } from '../../../common/event';
 
@@ -32,6 +32,10 @@ export function FileTypePanel(props: {
         EventUtil.Emit("addCodeDoc", [selector.spaceId]);
     }
 
+    function addMarkdown() {
+        EventUtil.Emit("addMarkdown", [selector.spaceId]);
+    }
+
     return (
         <>
             <div id="grid-container" onClick={() => selected()}>
@@ -41,11 +45,15 @@ export function FileTypePanel(props: {
                 </div>
                 <div className="file-type-item" onClick={addRichTextFile}>
                     <FileTextOutlined style={{ fontSize: '60px' }} />
-                    <span>富文本文档</span>
+                    <span>富文本</span>
                 </div>
                 <div className="file-type-item" onClick={addCode}>
                     <CodeOutlined style={{ fontSize: '60px' }} />
                     <span>代码片段</span>
+                </div>
+                <div className="file-type-item" onClick={addMarkdown}>
+                    <FileMarkdownOutlined style={{ fontSize: '60px' }} />
+                    <span>Markdown</span>
                 </div>
             </div>
         </>

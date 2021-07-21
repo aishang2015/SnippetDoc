@@ -1,7 +1,7 @@
 import { Button, List, Modal } from "antd";
 import {
     EditOutlined, DeleteOutlined, FileTextOutlined, HistoryOutlined, CopyOutlined,
-    CodeOutlined, FileUnknownOutlined
+    CodeOutlined, FileUnknownOutlined, FileMarkdownOutlined
 } from '@ant-design/icons';
 import { useSelector } from "react-redux";
 
@@ -64,6 +64,8 @@ export function ContentPart() {
             EventUtil.Emit("editRichDoc", [fileId, spaceId]);
         } else if (docType === 2) {
             EventUtil.Emit("editCodeDoc", [fileId, spaceId]);
+        } else if (docType === 3) {
+            EventUtil.Emit("editMarkdown", [fileId, spaceId]);
         }
     }
     function modifyFolder(folderId: any, spaceId: any) {
@@ -92,6 +94,11 @@ export function ContentPart() {
             // 浏览代码
             case 2:
                 EventUtil.Emit("viewCodeDoc", [fileId]);
+                break;
+
+            // 浏览markdown
+            case 3:
+                EventUtil.Emit("viewMarkdownDoc", [fileId]);
                 break;
         }
     }
@@ -135,6 +142,9 @@ export function ContentPart() {
                 break;
             case 2:
                 result = (<CodeOutlined style={{ fontSize: '40px' }} />);
+                break;
+            case 3:
+                result = (<FileMarkdownOutlined style={{ fontSize: '40px' }} />);
                 break;
             default:
                 result = (<FileUnknownOutlined style={{ fontSize: '40px' }} />);

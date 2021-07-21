@@ -5,10 +5,10 @@ import { EventUtil } from "../../common/event";
 import { DocRequests } from "../../http/requests/doc";
 import { UserDate } from "../common/userDate";
 import { UserGroup } from "../common/userGroup";
-import MonacoEditor from "@monaco-editor/react";
+import ReactMarkdown from 'react-markdown';
 import './richViewer.less';
 
-export function CodeViewer() {
+export function MarkdownViewer() {
 
     const [visible, setVisible] = useState(false);
 
@@ -16,14 +16,14 @@ export function CodeViewer() {
     const [docInfo, setDocInfo] = useState({} as any);
 
     useEffect(() => {
-        EventUtil.Subscribe("viewCodeDoc", viewCodeDoc);
+        EventUtil.Subscribe("viewMarkdownDoc", viewMarkdownDoc);
         return () => {
-            EventUtil.UnSubscribe("viewCodeDoc", viewCodeDoc);
+            EventUtil.UnSubscribe("viewMarkdownDoc", viewMarkdownDoc);
         };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // 浏览文档内容
-    async function viewCodeDoc(params: any) {
+    async function viewMarkdownDoc(params: any) {
         let [docId, historyId] = params;
         try {
             let response = await DocRequests.getDoc({
@@ -76,13 +76,7 @@ export function CodeViewer() {
 
                     </div>
 
-                    <MonacoEditor
-                        options={{ 'readOnly': true }}
-                        height="70vh"
-                        language="csharp"
-                        theme="light"
-                        value={docInfo.content}
-                    />
+                    <ReactMarkdown>{docInfo.content}</ReactMarkdown>
                 </div>
             </Modal>
         </>

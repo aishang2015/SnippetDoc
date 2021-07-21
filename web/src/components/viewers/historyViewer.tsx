@@ -48,6 +48,8 @@ export function HistoryViewer() {
             EventUtil.Emit("viewRichDoc", [docId, historyId]);
         } else if (docType === 2) {
             EventUtil.Emit("viewCodeDoc", [docId, historyId]);
+        } else if (docType === 3) {
+            EventUtil.Emit("viewMarkdownDoc", [docId, historyId]);
         }
         closeModal();
     }
