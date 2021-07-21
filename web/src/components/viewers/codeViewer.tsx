@@ -1,16 +1,14 @@
 import Modal from "antd/lib/modal/Modal";
 import { useRef } from "react";
 import { useEffect, useState } from "react";
-import { useReactToPrint } from "react-to-print";
 import { EventUtil } from "../../common/event";
-import { FilePdfOutlined, FileWordOutlined } from '@ant-design/icons';
 import { DocRequests } from "../../http/requests/doc";
 import { UserDate } from "../common/userDate";
 import { UserGroup } from "../common/userGroup";
-import { ExportUtil } from "../../common/export";
+import MonacoEditor from "@monaco-editor/react";
 import './richViewer.less';
 
-export function RichViewer() {
+export function CodeViewer() {
 
     const [visible, setVisible] = useState(false);
 
@@ -18,14 +16,14 @@ export function RichViewer() {
     const [docInfo, setDocInfo] = useState({} as any);
 
     useEffect(() => {
-        EventUtil.Subscribe("viewRichDoc", viewRichDoc);
+        EventUtil.Subscribe("viewCodeDoc", viewCodeDoc);
         return () => {
-            EventUtil.UnSubscribe("viewRichDoc", viewRichDoc);
+            EventUtil.UnSubscribe("viewCodeDoc", viewCodeDoc);
         };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // 浏览文档内容
-    async function viewRichDoc(params: any) {
+    async function viewCodeDoc(params: any) {
         let [docId, historyId] = params;
         try {
             let response = await DocRequests.getDoc({
@@ -45,12 +43,12 @@ export function RichViewer() {
     }
 
     const componentRef: any = useRef();
-    const exportPdf = useReactToPrint({
-        content: () => componentRef.current,
-    });
-    const exportWord = () => {
-        ExportUtil.export2Word(componentRef.current.innerHTML, docInfo.title);
-    };
+    // const exportPdf = useReactToPrint({
+    //     content: () => componentRef.current,
+    // });
+    // const exportWord = () => {
+    //     ExportUtil.export2Word(componentRef.current.innerHTML, docInfo.title);
+    // };
 
     return (
         <>
@@ -73,11 +71,17 @@ export function RichViewer() {
                             </>
                         }
                         <div style={{ flexGrow: 1 }}></div>
-                        <div style={{ marginLeft: '10px', fontSize: '1.1rem' }} onClick={exportWord}><a><FileWordOutlined /></a></div>
-                        <div style={{ marginLeft: '10px', fontSize: '1.1rem' }} onClick={exportPdf}><a><FilePdfOutlined /></a></div>
+                        {/* <div style={{ marginLeft: '10px', fontSize: '1.1rem' }} onClick={exportWord}><a><FileWordOutlined /></a></div>
+                        <div style={{ marginLeft: '10px', fontSize: '1.1rem' }} onClick={exportPdf}><a><FilePdfOutlined /></a></div> */}
 
                     </div>
-                    <div dangerouslySetInnerHTML={{ __html: docInfo.content }}></div>
+                    
+                    <MonacoEditor
+                            height="70vh"
+                            language="csharp"
+                            theme="light"
+                            defaultValue={docInfo.content}
+                        />
                 </div>
             </Modal>
         </>

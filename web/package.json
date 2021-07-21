@@ -5,6 +5,7 @@
   "dependencies": {
     "@craco/craco": "^6.1.1",
     "@microsoft/signalr": "^5.0.5",
+    "@monaco-editor/react": "^4.2.1",
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.6.0",

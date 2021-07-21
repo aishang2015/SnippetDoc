@@ -12,6 +12,7 @@ export function HistoryViewer() {
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
     const [docId, setDocId] = useState(0);
+    const [docType, setDocType] = useState(0);
     const size = 15;
 
     useEffect(() => {
@@ -23,8 +24,9 @@ export function HistoryViewer() {
 
     // 保存文档id
     async function init(params: any) {
-        const [docId] = params;
+        const [docId, docType] = params;
         setDocId(docId);
+        setDocType(docType);
         await initHistoryList(docId);
     }
 
@@ -42,7 +44,11 @@ export function HistoryViewer() {
 
     // 浏览详情
     async function viewDetail(historyId: number) {
-        EventUtil.Emit("viewRichDoc", [docId, historyId]);
+        if (docType === 1) {
+            EventUtil.Emit("viewRichDoc", [docId, historyId]);
+        } else if (docType === 2) {
+            EventUtil.Emit("viewCodeDoc", [docId, historyId]);
+        }
         closeModal();
     }
 
@@ -74,7 +80,7 @@ export function HistoryViewer() {
                                 </div>);
                         })
                     }
-                    <Pagination style={{ marginTop: '10px' }} current={page} pageSize={size} onChange={pageChange} 
+                    <Pagination style={{ marginTop: '10px' }} current={page} pageSize={size} onChange={pageChange}
                         showSizeChanger={false} total={total} />
                 </div>
             </Modal>

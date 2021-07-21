@@ -1,78 +1,58 @@
-import './richTextEditor.less';
-import { Editor } from '@tinymce/tinymce-react';
-import { Configuration } from '../../../common/config';
-import { Button, Form, Input, Modal, TreeSelect } from 'antd';
+import { Button, Form, Input, Modal, TreeSelect } from "antd";
+import { useEffect, useState } from "react";
+import { EventUtil } from "../../../common/event";
+import { TreeUtil } from "../../../common/tree-util";
+import { FolderRequests } from "../../../http/requests/folder";
+import { signalRUtil } from "../../common/signalr";
 import { SaveOutlined } from '@ant-design/icons';
-import { useEffect, useState } from 'react';
-import { FolderRequests } from '../../../http/requests/folder';
-import { TreeUtil } from '../../../common/tree-util';
-import { DocRequests } from '../../../http/requests/doc';
-import { EventUtil } from '../../../common/event';
-import { signalRUtil } from '../../common/signalr';
+import { DocRequests } from "../../../http/requests/doc";
+import MonacoEditor from "@monaco-editor/react";
 
 
-export function RichTextEditor() {
+export function CodeEditor(props: any) {
 
     const [editVisible, setEditVisible] = useState(false);
     const [treeData, setTreeData] = useState(new Array<any>());
+
     const [docId, setDocId] = useState(0);
+    const [spaceId, setSpaceId] = useState(0);
 
     const [text, setText] = useState('');
     const [oldText, setOldText] = useState('');
-    const [currentSpaceId, setCurrentSpaceId] = useState(0);
-
     const [editForm] = Form.useForm();
 
-    const tinymceConfig = {
-        language: 'zh_CN',
-        height: 700,
-        menubar: false,
-        content_style: "img {max-width:100%;}",
-        plugins: 'print preview paste importcss searchreplace autolink directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
-        toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | table | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview print | insertfile image media template link anchor codesample code | ltr rtl | ',
-        images_upload_url: `${Configuration.BaseUrl}/api/file/uploadFile`,
-        images_upload_base_path: `${Configuration.BaseUrl}/files`,
-    }
-
-
     useEffect(() => {
-        EventUtil.Subscribe("editRichDoc", modifyFile);
-        EventUtil.Subscribe("addRichDoc", addFile);
+        EventUtil.Subscribe("editCodeDoc", editCodeDoc);
+        EventUtil.Subscribe("addCodeDoc", addCodeDoc);
         return () => {
-            EventUtil.UnSubscribe("editRichDoc", modifyFile);
-            EventUtil.UnSubscribe("addRichDoc", addFile);
+            EventUtil.UnSubscribe("editCodeDoc", editCodeDoc);
+            EventUtil.UnSubscribe("addCodeDoc", addCodeDoc);
         };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // 初始化文件夹树
-    async function initFolderData(spaceId: any) {
-        try {
-            let response = await FolderRequests.getFolderTree({ spaceId: spaceId });
-            setTreeData(TreeUtil.MakeAntTreeData(response.data.data, null));
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    // 添加富文本文档
-    async function addFile(params: any) {
+    // 创建代码文档
+    async function addCodeDoc(params: any) {
         let [spaceId] = params;
-        setCurrentSpaceId(spaceId);
+        setSpaceId(spaceId);
+
         await initFolderData(spaceId);
         editForm.resetFields();
         setText('');
         setEditVisible(true);
     }
 
-    // 修改富文本文档
-    async function modifyFile(params: any) {
-        let [fileId, spaceId] = params;
-        setDocId(fileId);
-        await signalRUtil.stateConnection.invoke("BeginEdit", fileId);
+    // 编辑代码文档
+    async function editCodeDoc(params: any) {
+        let [docId, spaceId] = params;
+        setSpaceId(spaceId);
+        setDocId(docId);
+
+        await signalRUtil.stateConnection.invoke("BeginEdit", docId);
+        
         try {
             await initFolderData(spaceId);
             let response = await DocRequests.getDoc({
-                id: fileId,
+                id: docId,
                 historyId: null
             });
             editForm.setFieldsValue({
@@ -88,14 +68,25 @@ export function RichTextEditor() {
         }
     }
 
-    function richTextChange(newText: string) {
-        setOldText(newText);
+    // 初始化文件夹树
+    async function initFolderData(spaceId: any) {
+        try {
+            let response = await FolderRequests.getFolderTree({ spaceId: spaceId });
+            setTreeData(TreeUtil.MakeAntTreeData(response.data.data, null));
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     // 关闭模态框
     async function closeModal() {
         setEditVisible(false);
         await signalRUtil.stateConnection.invoke("EndEdit", docId);
+    }
+
+    // 输入内容变化
+    function codeTextChange(newText: any, event: any) {
+        setOldText(newText);
     }
 
     // 提交表单
@@ -110,9 +101,9 @@ export function RichTextEditor() {
 
                 // 添加新文档
                 await DocRequests.createDoc({
-                    spaceId: currentSpaceId,
+                    spaceId: spaceId,
                     folderId: upFolderId,
-                    docType: 1,
+                    docType: 2,
                     title: title,
                     content: content
                 });
@@ -157,8 +148,14 @@ export function RichTextEditor() {
                     }>
                         <Input placeholder="请输入标题" maxLength={100} autoComplete="off"></Input>
                     </Form.Item>
-                    <Form.Item name="content">
-                        <Editor init={tinymceConfig} initialValue={text} onEditorChange={richTextChange} />
+                    <Form.Item name="content" style={{ border: '1px solid lightgray' }}>
+                        <MonacoEditor
+                            height="50vh"
+                            language="csharp"
+                            theme="light"
+                            defaultValue={text}
+                            onChange={codeTextChange}
+                        />
                     </Form.Item>
                 </Form>
             </Modal>

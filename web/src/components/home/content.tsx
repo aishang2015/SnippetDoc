@@ -1,5 +1,8 @@
 import { Button, List, Modal } from "antd";
-import { EditOutlined, DeleteOutlined, FileTextOutlined, HistoryOutlined, CopyOutlined } from '@ant-design/icons';
+import {
+    EditOutlined, DeleteOutlined, FileTextOutlined, HistoryOutlined, CopyOutlined,
+    CodeOutlined, FileUnknownOutlined
+} from '@ant-design/icons';
 import { useSelector } from "react-redux";
 
 import './common.less';
@@ -54,16 +57,21 @@ export function ContentPart() {
         });
     }
 
-    function modifyFile(e: any, fileId: any, spaceId: any) {
+    function modifyFile(e: any, fileId: any, spaceId: any, docType: any) {
+        console.log(docType);
         e.stopPropagation();
-        EventUtil.Emit("editRichDoc", [fileId, spaceId]);
+        if (docType === 1) {
+            EventUtil.Emit("editRichDoc", [fileId, spaceId]);
+        } else if (docType === 2) {
+            EventUtil.Emit("editCodeDoc", [fileId, spaceId]);
+        }
     }
     function modifyFolder(folderId: any, spaceId: any) {
         EventUtil.Emit("editFolder", [folderId, spaceId]);
     }
-    function viewHistory(e: any, fileId: any) {
+    function viewHistory(e: any, fileId: any, docType: any) {
         e.stopPropagation();
-        EventUtil.Emit("viewHistory", [fileId]);
+        EventUtil.Emit("viewHistory", [fileId, docType]);
     }
 
     // 复制文档
@@ -79,6 +87,12 @@ export function ContentPart() {
             // 浏览富文本
             case 1:
                 EventUtil.Emit("viewRichDoc", [fileId]);
+                break;
+
+            // 浏览代码
+            case 2:
+                EventUtil.Emit("viewCodeDoc", [fileId]);
+                break;
         }
     }
 
@@ -103,14 +117,30 @@ export function ContentPart() {
         return editdocSelector[item.id] ?
             [
                 <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => copyDoc(e, item.id)}><CopyOutlined /></a>,
-                <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => viewHistory(e, item.id)}><HistoryOutlined /></a>,
+                <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => viewHistory(e, item.id, item.docType)}><HistoryOutlined /></a>,
             ] :
             [
                 <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => copyDoc(e, item.id)}><CopyOutlined /></a>,
-                <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => viewHistory(e, item.id)}><HistoryOutlined /></a>,
-                <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => modifyFile(e, item.id, classifySelector.spaceId)}><EditOutlined /></a>,
+                <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => viewHistory(e, item.id, item.docType)}><HistoryOutlined /></a>,
+                <a key={"list-edit"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => modifyFile(e, item.id, classifySelector.spaceId, item.docType)}><EditOutlined /></a>,
                 <a key={"list-delete"} style={{ fontSize: '1.1rem', padding: "10px 5px" }} onClick={(e) => deleteDoc(e, item.id)}><DeleteOutlined /></a>
             ];
+    }
+
+    function contentIcon(item: any) {
+        let result;
+        switch (item.docType) {
+            case 1:
+                result = (<FileTextOutlined style={{ fontSize: '40px' }} />);
+                break;
+            case 2:
+                result = (<CodeOutlined style={{ fontSize: '40px' }} />);
+                break;
+            default:
+                result = (<FileUnknownOutlined style={{ fontSize: '40px' }} />);
+                break;
+        }
+        return result;
     }
 
     return (
@@ -162,7 +192,7 @@ export function ContentPart() {
                                                     }
                                                 </div>
                                             </>}
-                                        avatar={<FileTextOutlined style={{ fontSize: '40px' }} />}>
+                                        avatar={contentIcon(item)}>
                                     </List.Item.Meta>
                                 </List.Item>
                             )
