@@ -2,7 +2,7 @@ version: "3"
 services:
   web:
     container_name: snippet-web
-    image: snippet-web
+    image: snippet-doc-web
     build: 
       context: ./web
       dockerfile: Dockerfile
@@ -15,7 +15,7 @@ services:
       - ./volumns/web/nginx.conf:/etc/nginx/nginx.conf
   api:    
     container_name: snippet-api
-    image: snippet-api
+    image: snippet-doc-api
     build: 
       context: ./api
       dockerfile: Snippet/Dockerfile
