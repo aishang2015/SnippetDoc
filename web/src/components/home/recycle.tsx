@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { FileTextOutlined, DeleteOutlined, RollbackOutlined } from '@ant-design/icons';
 import { RecycleRequests } from "../../http/requests/recycle";
 import { dateFormat } from "../../common/time";
+import { useSelector } from "react-redux";
 
 
 
@@ -13,6 +14,9 @@ export function RecyclePart() {
     const [docList, setDocList] = useState(new Array<any>());
     const size = 10;
 
+    const classifySelector = useSelector((state: any) => {
+        return state.ClassifyReducer;
+    });
 
     useEffect(() => {
         getDocListAsync(page);
@@ -22,7 +26,7 @@ export function RecyclePart() {
     // 取得文档列表
     async function getDocListAsync(page: number) {
         try {
-            let response = await RecycleRequests.getDeletedDocs({ page: page, size: size });
+            let response = await RecycleRequests.getDeletedDocs({ page: page, size: size, spaceId: classifySelector.spaceId });
             setTotal(response.data.data.total);
             setDocList(response.data.data.pagedData);
         } catch (e) {

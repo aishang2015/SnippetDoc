@@ -5,6 +5,7 @@ using Snippet.Constants;
 using Snippet.Core.Data;
 using Snippet.Models;
 using Snippet.Models.Recycle;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -30,29 +31,42 @@ namespace Snippet.Controllers
 
         [HttpPost]
         [ProducesResponseType(typeof(CommonResult<PagedModel<GetDeletedDocsOutputModel>>), 200)]
-        public async Task<CommonResult> GetDeletedDocs(GetDeletedDocsInputModel inputModel)
+        public CommonResult GetDeletedDocs(GetDeletedDocsInputModel inputModel)
         {
             var userName = _userService.GetUserName();
 
-            var spaceIds = await (from space in _snippetDbContext.Spaces.AsNoTracking()
-                                  join spaceMember in _snippetDbContext.SpaceMembers on space.Id equals spaceMember.Id
-                                  where spaceMember.MemberName == userName && spaceMember.MemberRole != 3
-                                  select space.Id).ToListAsync();
+            var haveRight = (from space in _snippetDbContext.Spaces.AsNoTracking()
+                             join spaceMember in _snippetDbContext.SpaceMembers on space.Id equals spaceMember.SpaceId
+                             where space.Id == inputModel.spaceId &&
+                                 spaceMember.MemberName == userName &&
+                                 spaceMember.MemberRole != 3
+                             select space.Id).Any();
 
-            var query = from d in _snippetDbContext.DocInfos.AsNoTracking()
-                        join s in _snippetDbContext.Spaces.AsNoTracking() on d.SpaceId equals s.Id
-                        where d.IsDelete && spaceIds.Contains(d.SpaceId)
-                        select new GetDeletedDocsOutputModel(d.Id, d.DocType, s.Name, d.Title,
-                            d.Content, d.CreateBy, d.CreateAt, d.UpdateBy, d.UpdateAt);
-
-            var take = inputModel.size;
-            var skip = (inputModel.page - 1) * inputModel.size;
-
-            return this.SuccessCommonResult(new PagedModel<GetDeletedDocsOutputModel>
+            if (haveRight)
             {
-                Total = query.Count(),
-                PagedData = query.Skip(skip).Take(take)
-            });
+                var query = from d in _snippetDbContext.DocInfos.AsNoTracking()
+                            join s in _snippetDbContext.Spaces.AsNoTracking() on d.SpaceId equals s.Id
+                            where d.IsDelete && d.SpaceId == inputModel.spaceId
+                            select new GetDeletedDocsOutputModel(d.Id, d.DocType, s.Name, d.Title,
+                                d.Content, d.CreateBy, d.CreateAt, d.UpdateBy, d.UpdateAt);
+
+                var take = inputModel.size;
+                var skip = (inputModel.page - 1) * inputModel.size;
+
+                return this.SuccessCommonResult(new PagedModel<GetDeletedDocsOutputModel>
+                {
+                    Total = query.Count(),
+                    PagedData = query.Skip(skip).Take(take)
+                });
+            }
+            else
+            {
+                return this.SuccessCommonResult(new PagedModel<GetDeletedDocsOutputModel>
+                {
+                    Total = 0,
+                    PagedData = new List<GetDeletedDocsOutputModel>()
+                });
+            }
         }
 
         [HttpPost]

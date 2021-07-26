@@ -8,7 +8,14 @@ import { withRouter } from 'react-router-dom';
 import { OauthService } from '../../common/oauth';
 import { StorageService } from '../../common/storage';
 
-class Login extends React.Component<any> {
+class Login extends React.Component<any, any> {
+
+    constructor(props: any) {
+        super(props);
+        this.state = {
+            isLoading: false
+        };
+    }
 
     componentDidMount() {
         StorageService.clearOauthStore();
@@ -19,9 +26,9 @@ class Login extends React.Component<any> {
             <div className="full-window">
                 <Card className="login-card">
                     <div className="logo-contaier">
-                        <img className="logo" src="logo192.png" alt="logo" />
+                        <span>Snippet Doc</span>
                     </div>
-                    <Form name="normal_login" onFinish={this.login}>
+                    <Form name="normal_login" onFinish={this.login.bind(this)}>
                         <Form.Item name="username"
                             rules={[{ required: true, message: '请输入你的用户名!' }]}>
                             <Input prefix={<UserOutlined className="site-form-item-icon" />}
@@ -34,13 +41,13 @@ class Login extends React.Component<any> {
                         </Form.Item>
 
                         <Form.Item>
-                            <Button type="primary" block htmlType="submit">登录</Button>
+                            <Button loading={this.state.isLoading} type="primary" block htmlType="submit">登录</Button>
                         </Form.Item>
                     </Form>
-                    <div className="thrid-login-bar">
+                    {/* <div className="thrid-login-bar">
                         <Button shape="circle" type="default" icon={<GithubOutlined />} onClick={() => this.githubLogin()} />
                         <Button shape="circle" type="default" onClick={() => this.baiduLogin()} >Ba</Button>
-                    </div>
+                    </div> */}
                 </Card>
             </div>
         )
@@ -53,6 +60,7 @@ class Login extends React.Component<any> {
         };
 
         try {
+            this.setState({ isLoading: true });
 
             let response = await login(model);
 
@@ -68,6 +76,7 @@ class Login extends React.Component<any> {
             window.location.reload();
 
         } catch (err) {
+            this.setState({ isLoading: false });
             console.error(err);
         }
     }

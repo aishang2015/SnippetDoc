@@ -92,7 +92,6 @@ namespace Snippet.UT.Controllers
             Assert.Equal(MessageConstant.ACCOUNT_ERROR_0001.Item2, result.Message);
         }
 
-
         [Fact]
         public async Task LoginTest003()
         {
@@ -110,7 +109,6 @@ namespace Snippet.UT.Controllers
             Assert.Equal(MessageConstant.ACCOUNT_ERROR_0001.Item1, result.Code);
             Assert.Equal(MessageConstant.ACCOUNT_ERROR_0001.Item2, result.Message);
         }
-
 
         private SnippetUser TestUser1() =>
             new SnippetUser

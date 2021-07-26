@@ -26,7 +26,8 @@ export interface physicsDeleteDocRequest {
 
 export interface getDeletedDocsRequest {
     page: number,
-    size: number
+    size: number,
+    spaceId: number
 }
 
 export interface getDeletedDocsResponse {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Snippet.Constants;
 using Snippet.Core.Data;
 using System;
@@ -18,50 +19,64 @@ namespace Snippet.Business.Workers
 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
+        private readonly ILogger _logger;
+
         public CleanFileWorker(IServiceProvider serviceProvider,
-            IWebHostEnvironment webHostEnvironment)
+            IWebHostEnvironment webHostEnvironment,
+            ILogger<CleanFileWorker> logger)
         {
             _serviceProvider = serviceProvider;
             _webHostEnvironment = webHostEnvironment;
+            _logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var isTodayRun = false;
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(1000);
-
-                // 3点执行
-                var now = DateTime.Now;
-                if (!isTodayRun && now.Hour == 3 && now.Minute == 0)
+                try
                 {
-                    using (var scope = _serviceProvider.CreateScope())
+                    var isTodayRun = false;
+                    while (!stoppingToken.IsCancellationRequested)
                     {
-                        // 数据库中的
-                        using var db = scope.ServiceProvider.GetService<SnippetDbContext>();
-                        var fileNames = db.DocFiles.Select(df => df.FileName).ToList();
+                        await Task.Delay(10000);
 
-                        // 本地的
-                        var distFolder = Path.Combine(_webHostEnvironment.ContentRootPath, CommonConstant.LocalFileStoreFolder);
-                        var uselessFiles = Directory.GetFiles(distFolder)
-                            .Where(f => !fileNames.Contains(Regex.Match(f, RegexConstant.GuidPattern).Value)).ToList();
-
-                        // 删除没有引用的文件
-                        uselessFiles.ForEach(f =>
+                        // 3点执行
+                        var now = DateTime.Now;
+                        if (!isTodayRun && now.Hour == 3 && now.Minute == 0)
                         {
-                            File.Delete(f);
-                        });
+                            using (var scope = _serviceProvider.CreateScope())
+                            {
+                                // 数据库中的
+                                using var db = scope.ServiceProvider.GetService<SnippetDbContext>();
+                                var fileNames = db.DocFiles.Select(df => df.FileName).ToList();
+
+                                // 本地的
+                                var distFolder = Path.Combine(_webHostEnvironment.ContentRootPath, CommonConstant.LocalFileStoreFolder);
+                                var uselessFiles = Directory.GetFiles(distFolder)
+                                    .Where(f => !fileNames.Contains(Regex.Match(f, RegexConstant.GuidPattern).Value)).ToList();
+
+                                // 删除没有引用的文件
+                                uselessFiles.ForEach(f =>
+                                {
+                                    File.Delete(f);
+                                });
+                            }
+
+                            // 一天运行一次
+                            isTodayRun = true;
+                        }
+
+                        // 重置标志位
+                        if (isTodayRun && now.Hour == 3 && now.Minute > 0)
+                        {
+                            isTodayRun = false;
+                        }
                     }
-
-                    // 一天运行一次
-                    isTodayRun = true;
                 }
-
-                // 重置标志位
-                if (isTodayRun && now.Hour == 3 && now.Minute > 0)
+                catch (Exception e)
                 {
-                    isTodayRun = false;
+                    _logger.LogError(e, "定时清理无用文件时发生错误！");
                 }
             }
         }

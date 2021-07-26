@@ -12,7 +12,6 @@ namespace Snippet.IT
     public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup>
         where TStartup : class
     {
-
         protected override IWebHostBuilder CreateWebHostBuilder()
         {
             return base.CreateWebHostBuilder();
@@ -47,7 +46,6 @@ namespace Snippet.IT
                         Email = "admin@tttttttttt.com.cn",
                         PhoneNumber = "16655558888",
                     }, "admin2").Wait();
-
                 }
             });
         }
